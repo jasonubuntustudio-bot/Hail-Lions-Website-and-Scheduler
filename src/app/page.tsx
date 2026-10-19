@@ -9,37 +9,37 @@ export default function HomePage() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-cyan-900/20 to-transparent pointer-events-none" />
-        <div className="max-w-6xl mx-auto px-4 py-16 md:py-24 text-center">
-          <div className="flex justify-center mb-6">
+        <div className="max-w-6xl mx-auto px-4 py-10 sm:py-16 md:py-24 text-center">
+          <div className="flex justify-center mb-5 sm:mb-6">
             <Image
               src="/logo.png"
               alt="Hail Lions"
-              width={96}
-              height={96}
-              className="rounded-full"
+              width={88}
+              height={88}
+              className="rounded-full w-20 h-20 sm:w-24 sm:h-24"
               priority
             />
           </div>
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-3 sm:mb-4 leading-tight px-1">
             Mobile Paintless
             <br />
             <span className="text-cyan-400">Dent Repair</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+          <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-6 sm:mb-8 px-1">
             We come to you. Hail damage, door dings, creases — restored without
             paint. 100% satisfaction guarantee. Lifetime warranty.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
             <Link
               href="/book"
-              className="inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-lg px-8 py-4 rounded-xl transition shadow-lg shadow-cyan-500/25"
+              className="inline-flex items-center justify-center gap-2 bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-300 text-black font-bold text-base sm:text-lg px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl transition shadow-lg shadow-cyan-500/25 min-h-[52px] w-full sm:w-auto"
             >
               <Camera size={22} />
               Start with Photos
             </Link>
             <a
               href={`tel:${PHONE_TEL}`}
-              className="inline-flex items-center justify-center gap-2 border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 font-semibold text-lg px-8 py-4 rounded-xl transition"
+              className="inline-flex items-center justify-center gap-2 border border-cyan-500 text-cyan-400 hover:bg-cyan-500/10 active:bg-cyan-500/20 font-semibold text-base sm:text-lg px-6 sm:px-8 py-3.5 sm:py-4 rounded-xl transition min-h-[52px] w-full sm:w-auto"
             >
               <Phone size={22} />
               Call {PHONE}

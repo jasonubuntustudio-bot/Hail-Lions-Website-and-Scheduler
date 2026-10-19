@@ -114,12 +114,12 @@ export default function BookPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-4 sm:pt-8 pb-28 sm:pb-10">
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-xl font-bold text-white">Book Service</h1>
+        <h1 className="text-lg sm:text-xl font-bold text-white">Book Service</h1>
         <span className="text-sm text-gray-400">Step {step} of 5</span>
       </div>
-      <div className="h-1 bg-gray-900 rounded mb-8">
+      <div className="h-1.5 bg-gray-900 rounded mb-6 sm:mb-8">
         <div
           className="h-full bg-cyan-500 rounded transition-all duration-300"
           style={{ width: `${(step / 5) * 100}%` }}
@@ -137,15 +137,16 @@ export default function BookPage() {
               quote.
             </p>
           </div>
-          <label className="block border-2 border-dashed border-gray-700 hover:border-cyan-500 rounded-2xl p-8 text-center cursor-pointer transition">
-            <Upload className="mx-auto text-gray-500 mb-3" size={32} />
-            <span className="text-gray-300 font-medium">
-              Tap to upload photos
+          <label className="block border-2 border-dashed border-gray-700 active:border-cyan-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition min-h-[140px] flex flex-col items-center justify-center">
+            <Upload className="text-gray-500 mb-3" size={36} />
+            <span className="text-gray-300 font-medium text-base">
+              Tap to take or upload photos
             </span>
-            <p className="text-xs text-gray-500 mt-1">JPG, PNG up to 10 MB each</p>
+            <p className="text-xs text-gray-500 mt-1">Camera or gallery · JPG, PNG</p>
             <input
               type="file"
               accept="image/*"
+              capture="environment"
               multiple
               className="hidden"
               onChange={handlePhotoChange}
@@ -476,37 +477,40 @@ export default function BookPage() {
         </div>
       )}
 
-      <div className="flex justify-between mt-10 pt-6 border-t border-gray-800">
-        {step > 1 ? (
-          <button
-            type="button"
-            onClick={() => setStep((s) => (s - 1) as Step)}
-            className="flex items-center gap-2 text-gray-400 hover:text-white px-4 py-2"
-          >
-            <ChevronLeft size={18} /> Back
-          </button>
-        ) : (
-          <div />
-        )}
-        {step < 5 ? (
-          <button
-            type="button"
-            disabled={!canProceed()}
-            onClick={() => setStep((s) => (s + 1) as Step)}
-            className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold px-6 py-2.5 rounded-lg transition"
-          >
-            Continue <ChevronRight size={18} />
-          </button>
-        ) : (
-          <button
-            type="button"
-            disabled={!canProceed()}
-            onClick={() => setSubmitted(true)}
-            className="flex items-center gap-2 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold px-6 py-2.5 rounded-lg transition"
-          >
-            Submit Request
-          </button>
-        )}
+      {/* Sticky mobile action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 backdrop-blur safe-bottom sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:mt-10 sm:pt-6 sm:border-t sm:border-gray-800">
+        <div className="max-w-2xl mx-auto px-3 sm:px-0 py-3 sm:py-0 flex justify-between gap-3">
+          {step > 1 ? (
+            <button
+              type="button"
+              onClick={() => setStep((s) => (s - 1) as Step)}
+              className="flex items-center justify-center gap-1 text-gray-300 active:text-white px-4 min-h-[48px] min-w-[44px] rounded-lg active:bg-gray-900"
+            >
+              <ChevronLeft size={20} /> Back
+            </button>
+          ) : (
+            <div className="min-w-[44px]" />
+          )}
+          {step < 5 ? (
+            <button
+              type="button"
+              disabled={!canProceed()}
+              onClick={() => setStep((s) => (s + 1) as Step)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-cyan-500 active:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold px-6 min-h-[48px] rounded-xl transition"
+            >
+              Continue <ChevronRight size={20} />
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!canProceed()}
+              onClick={() => setSubmitted(true)}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-cyan-500 active:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold px-6 min-h-[48px] rounded-xl transition"
+            >
+              Submit Request
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );

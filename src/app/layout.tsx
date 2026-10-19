@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "@/components/Header";
@@ -10,6 +10,14 @@ const inter = Inter({
   variable: "--font-inter",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  themeColor: "#0a0a0a",
+  viewportFit: "cover",
+};
+
 export const metadata: Metadata = {
   title: {
     default: "Hail Lions | Mobile Paintless Dent Repair Houston",
@@ -20,6 +28,15 @@ export const metadata: Metadata = {
     PHONE,
   icons: {
     icon: "/logo.png",
+    apple: "/logo.png",
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Hail Lions",
+  },
+  formatDetection: {
+    telephone: true,
   },
   openGraph: {
     title: "Hail Lions — The King of Dent Repair",
@@ -39,7 +56,7 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-[#0a0a0a] text-gray-100">
         <Header />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 w-full overflow-x-hidden">{children}</main>
         <Footer />
       </body>
     </html>

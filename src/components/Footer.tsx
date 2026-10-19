@@ -4,9 +4,9 @@ import { PHONE, PHONE_TEL } from "@/lib/utils";
 
 export default function Footer() {
   return (
-    <footer className="border-t border-gray-800 bg-black py-12">
+    <footer className="border-t border-gray-800 bg-black py-10 sm:py-12 safe-bottom">
       <div className="max-w-6xl mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8 mb-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 mb-10">
           <div>
             <div className="flex items-center gap-3 mb-4">
               <Image src="/logo.png" alt="Hail Lions" width={40} height={40} />
@@ -23,19 +23,19 @@ export default function Footer() {
 
           <div>
             <h4 className="font-semibold text-white mb-3">Services</h4>
-            <ul className="space-y-2 text-sm text-gray-400">
+            <ul className="space-y-1 text-sm text-gray-400">
               <li>
-                <Link href="/services/paintless-dent-repair" className="hover:text-cyan-400">
+                <Link href="/services/paintless-dent-repair" className="hover:text-cyan-400 block py-2">
                   Paintless Dent Repair
                 </Link>
               </li>
               <li>
-                <Link href="/services/hail-damage-repair" className="hover:text-cyan-400">
+                <Link href="/services/hail-damage-repair" className="hover:text-cyan-400 block py-2">
                   Hail Damage Repair
                 </Link>
               </li>
               <li>
-                <Link href="/services/mobile-dent-repair" className="hover:text-cyan-400">
+                <Link href="/services/mobile-dent-repair" className="hover:text-cyan-400 block py-2">
                   Mobile Dent Repair
                 </Link>
               </li>
