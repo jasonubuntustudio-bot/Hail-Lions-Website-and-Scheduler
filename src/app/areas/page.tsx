@@ -7,6 +7,19 @@ export const metadata = {
     "Hail Lions mobile paintless dent repair serves Houston, Baytown, Katy, Cypress, The Woodlands, Spring, Conroe, and surrounding cities.",
 };
 
+const FEATURED = [
+  {
+    slug: "houston",
+    name: "Houston, TX",
+    blurb: "Mobile PDR across the city — home, office, or dealership.",
+  },
+  {
+    slug: "baytown",
+    name: "Baytown, TX",
+    blurb: "Paintless dent repair and hail damage — we come to you.",
+  },
+];
+
 const CITIES = [
   { slug: "houston", name: "Houston" },
   { slug: "baytown", name: "Baytown" },
@@ -35,55 +48,56 @@ export default function AreasPage() {
         </p>
       </div>
 
-      {/* Featured: Baytown */}
-      <Link
-        href="/areas/baytown"
-        className="block mb-6 sm:mb-8 bg-gradient-to-r from-cyan-500/15 to-transparent border border-cyan-500/40 hover:border-cyan-400 rounded-2xl p-5 sm:p-6 transition"
-      >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
-              <MapPin className="text-cyan-400" size={22} />
-            </div>
-            <div>
-              <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide">
-                Featured area
-              </p>
-              <h2 className="text-xl sm:text-2xl font-bold text-white">
-                Baytown, TX
-              </h2>
-            </div>
-          </div>
-          <p className="text-gray-400 text-sm sm:ml-auto sm:max-w-md">
-            Mobile PDR and hail damage repair — we come to you in Baytown and
-            nearby communities.
-          </p>
-          <span className="text-cyan-400 text-sm font-semibold whitespace-nowrap">
-            View Baytown →
-          </span>
-        </div>
-      </Link>
-
-      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
-        {CITIES.map((city) => (
+      <div className="grid sm:grid-cols-2 gap-4 mb-6 sm:mb-8">
+        {FEATURED.map((city) => (
           <Link
             key={city.slug}
             href={`/areas/${city.slug}`}
-            className={`rounded-xl p-4 sm:p-5 flex items-center gap-2 sm:gap-3 transition min-h-[52px] ${
-              city.slug === "baytown"
-                ? "bg-cyan-500/10 border border-cyan-500/50 hover:border-cyan-400"
-                : "bg-gray-900 border border-gray-800 hover:border-cyan-500/50"
-            }`}
+            className="block bg-gradient-to-r from-cyan-500/15 to-transparent border border-cyan-500/40 hover:border-cyan-400 active:border-cyan-300 rounded-2xl p-5 transition"
           >
-            <MapPin
-              className="text-cyan-400 shrink-0"
-              size={18}
-            />
-            <span className="text-white font-medium text-sm sm:text-base">
-              {city.name}
-            </span>
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
+                <MapPin className="text-cyan-400" size={22} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-medium text-cyan-400 uppercase tracking-wide mb-0.5">
+                  Primary area
+                </p>
+                <h2 className="text-xl font-bold text-white">{city.name}</h2>
+                <p className="text-gray-400 text-sm mt-1">{city.blurb}</p>
+                <span className="inline-block text-cyan-400 text-sm font-semibold mt-2">
+                  View {city.name.split(",")[0]} →
+                </span>
+              </div>
+            </div>
           </Link>
         ))}
+      </div>
+
+      <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide mb-3 px-1">
+        All service areas
+      </h3>
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
+        {CITIES.map((city) => {
+          const isPrimary =
+            city.slug === "houston" || city.slug === "baytown";
+          return (
+            <Link
+              key={city.slug}
+              href={`/areas/${city.slug}`}
+              className={`rounded-xl p-4 sm:p-5 flex items-center gap-2 sm:gap-3 transition min-h-[52px] ${
+                isPrimary
+                  ? "bg-cyan-500/10 border border-cyan-500/50 hover:border-cyan-400"
+                  : "bg-gray-900 border border-gray-800 hover:border-cyan-500/50"
+              }`}
+            >
+              <MapPin className="text-cyan-400 shrink-0" size={18} />
+              <span className="text-white font-medium text-sm sm:text-base">
+                {city.name}
+              </span>
+            </Link>
+          );
+        })}
       </div>
 
       <p className="text-center text-gray-500 text-sm mb-8 px-2">
