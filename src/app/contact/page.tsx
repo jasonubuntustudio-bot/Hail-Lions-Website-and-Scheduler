@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Phone, Camera, MapPin, User } from "lucide-react";
+import ServiceAreaMap from "@/components/ServiceAreaMap";
 import {
   PHONE,
   PHONE_TEL,
@@ -91,6 +92,11 @@ export default function ContactPage() {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-lg font-semibold text-white mb-3">Service area map</h2>
+        <ServiceAreaMap />
       </div>
 
       <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 sm:p-6">

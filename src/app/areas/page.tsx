@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MapPin, Camera } from "lucide-react";
+import ServiceAreaMap from "@/components/ServiceAreaMap";
 
 export const metadata = {
   title: "Service Areas — Greater Houston",
@@ -48,6 +49,12 @@ export default function AreasPage() {
         </p>
       </div>
 
+      {/* Map: Houston + Baytown */}
+      <div className="mb-8 sm:mb-10">
+        <ServiceAreaMap />
+      </div>
+
+      {/* Featured: Houston & Baytown */}
       <div className="grid sm:grid-cols-2 gap-4 mb-6 sm:mb-8">
         {FEATURED.map((city) => (
           <Link
