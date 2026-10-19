@@ -108,8 +108,8 @@ export default function HomePage() {
               Greater Houston
             </h3>
             <p className="text-gray-400">
-              Katy, Cypress, The Woodlands, Spring, Conroe, Baytown, Sugar Land,
-              Pearland and more.
+              Houston, Baytown, Katy, Cypress, The Woodlands, Spring, Conroe,
+              Pasadena, Sugar Land, Pearland and more.
             </p>
           </div>
         </div>

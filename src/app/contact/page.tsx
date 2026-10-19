@@ -99,9 +99,9 @@ export default function ContactPage() {
           <h2 className="text-lg font-semibold text-white">Service area</h2>
         </div>
         <p className="text-gray-300 text-sm leading-relaxed">
-          Fully mobile across greater Houston — including Katy, Cypress, The
-          Woodlands, Spring, Conroe, Baytown, Sugar Land, Pearland, Tomball,
-          Kingwood, Pasadena, and surrounding communities. We come to you.
+          Fully mobile across greater Houston — including Baytown, Katy, Cypress,
+          The Woodlands, Spring, Conroe, Pasadena, Sugar Land, Pearland,
+          Tomball, Kingwood, and surrounding communities. We come to you.
         </p>
         <Link
           href="/areas"

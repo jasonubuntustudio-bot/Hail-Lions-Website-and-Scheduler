@@ -4,22 +4,22 @@ import { MapPin, Camera } from "lucide-react";
 export const metadata = {
   title: "Service Areas — Greater Houston",
   description:
-    "Hail Lions mobile paintless dent repair serves Houston, Katy, Cypress, The Woodlands, Spring, Conroe, and surrounding cities.",
+    "Hail Lions mobile paintless dent repair serves Houston, Baytown, Katy, Cypress, The Woodlands, Spring, Conroe, and surrounding cities.",
 };
 
 const CITIES = [
   { slug: "houston", name: "Houston" },
+  { slug: "baytown", name: "Baytown" },
   { slug: "katy", name: "Katy" },
   { slug: "cypress", name: "Cypress" },
   { slug: "the-woodlands", name: "The Woodlands" },
   { slug: "spring", name: "Spring" },
   { slug: "conroe", name: "Conroe" },
-  { slug: "baytown", name: "Baytown" },
+  { slug: "pasadena", name: "Pasadena" },
   { slug: "sugar-land", name: "Sugar Land" },
   { slug: "pearland", name: "Pearland" },
   { slug: "tomball", name: "Tomball" },
   { slug: "kingwood", name: "Kingwood" },
-  { slug: "pasadena", name: "Pasadena" },
 ];
 
 export default function AreasPage() {
