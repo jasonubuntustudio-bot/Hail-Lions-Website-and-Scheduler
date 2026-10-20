@@ -23,7 +23,7 @@ export default function ParallaxImage({
   factor = 0.35,
   sizes = "100vw",
   priority = false,
-  quality = 65,
+  quality = 85,
 }: Props) {
   const { ref, y } = useParallax(factor);
 

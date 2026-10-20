@@ -1,42 +1,32 @@
 /**
- * Optimized Unsplash URLs — cropped to aspect, smaller bytes.
- * auto=format → WebP/AVIF when browser supports it
- * fit=crop + w/h → hard crop to frame
- * q= quality
+ * Local optimized WebP assets (high visual quality, small files).
+ * Source: haillions_media → public/images via LANCZOS + WebP q≈85.
  */
-const u = (
-  id: string,
-  w: number,
-  h: number,
-  q = 70
-) =>
-  `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=${h}&q=${q}`;
-
 export const IMAGES = {
-  /** Hero full-bleed — landscape, ~1400 wide */
-  hero: u("photo-1503376780353-7e6692767b70", 1400, 900, 68),
+  /** Hero full-bleed */
+  hero: "/images/hero.webp",
   /** Bottom CTA band */
-  band: u("photo-1486262715619-67b85e0b08d3", 1200, 640, 65),
+  band: "/images/band.webp",
   gallery: [
     {
-      src: u("photo-1492144534655-ae79c964c9d7", 480, 640, 65),
-      alt: "Polished vehicle after repair",
+      src: "/images/gallery-1.webp",
+      alt: "Paintless dent repair on a vehicle panel",
       label: "Factory finish restored",
     },
     {
-      src: u("photo-1503376780353-7e6692767b70", 480, 640, 65),
-      alt: "Luxury car body detail",
-      label: "No paint · no fillers",
+      src: "/images/gallery-2.webp",
+      alt: "Hail damage before repair",
+      label: "Hail damage — before",
     },
     {
-      src: u("photo-1552519507-da3b142c6e3d", 480, 640, 65),
-      alt: "Black sports car exterior",
+      src: "/images/gallery-3.webp",
+      alt: "Hail damage after paintless repair",
+      label: "Hail damage — after",
+    },
+    {
+      src: "/images/gallery-4.webp",
+      alt: "Door ding before and after",
       label: "Door dings & creases",
-    },
-    {
-      src: u("photo-1542362567-b07e54370788", 480, 640, 65),
-      alt: "Blue performance vehicle",
-      label: "Hail damage specialists",
     },
   ],
   services: [
@@ -44,19 +34,19 @@ export const IMAGES = {
       href: "/services/hail-damage-repair",
       title: "Hail Damage",
       desc: "Storm dents fixed on-site without a full body shop rebuild.",
-      img: u("photo-1605727216801-e27ce1d0cc28", 640, 480, 68),
+      img: "/images/service-hail.webp",
     },
     {
       href: "/services/paintless-dent-repair",
       title: "Paintless Dent Repair",
       desc: "Precision PDR that keeps your original paint and value.",
-      img: u("photo-1492144534655-ae79c964c9d7", 640, 480, 68),
+      img: "/images/service-pdr.webp",
     },
     {
       href: "/services/mobile-dent-repair",
       title: "Mobile Service",
       desc: "We come to your driveway, office, or dealership in Houston.",
-      img: u("photo-1486262715619-67b85e0b08d3", 640, 480, 68),
+      img: "/images/service-mobile.webp",
     },
   ],
 } as const;

@@ -59,7 +59,7 @@ export default function ParallaxHero() {
             priority
             className="object-cover object-center"
             sizes="(max-width: 768px) 100vw, 1400px"
-            quality={70}
+            quality={85}
           />
         </div>
       </div>

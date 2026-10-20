@@ -50,7 +50,7 @@ export default function ParallaxBand() {
             fill
             className="object-cover object-center opacity-50"
             sizes="(max-width: 768px) 100vw, 1200px"
-            quality={65}
+            quality={85}
           />
         </div>
       </div>

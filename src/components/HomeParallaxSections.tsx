@@ -71,7 +71,7 @@ export default function HomeParallaxSections() {
                 className="absolute inset-0 h-full w-full"
                 imageClassName="object-cover object-center transition duration-500 group-hover:scale-105"
                 sizes="(max-width: 768px) 50vw, 240px"
-                quality={65}
+                quality={85}
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-3 right-3 text-sm font-medium text-white">
@@ -111,7 +111,7 @@ export default function HomeParallaxSections() {
                   className="absolute inset-0 h-full w-full"
                   imageClassName="object-cover object-center transition duration-500 group-hover:scale-105"
                   sizes="(max-width: 768px) 100vw, 400px"
-                  quality={68}
+                  quality={85}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
