@@ -11,115 +11,121 @@ const HERO_IMG =
 
 export default function ParallaxHero() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [offset, setOffset] = useState(0);
-  const [contentOffset, setContentOffset] = useState(0);
-  const reduceMotion = useRef(false);
+  const [bgY, setBgY] = useState(0);
+  const [contentY, setContentY] = useState(0);
 
   useEffect(() => {
-    reduceMotion.current = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    if (reduceMotion.current) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mq.matches) return;
 
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        const el = sectionRef.current;
-        if (!el) {
-          ticking = false;
-          return;
-        }
-        const rect = el.getBoundingClientRect();
-        // How far the section has scrolled past the top of the viewport
-        const scrolled = Math.max(0, -rect.top);
-        // Background moves slower (classic parallax)
-        setOffset(scrolled * 0.45);
-        // Content drifts slightly upward for depth
-        setContentOffset(scrolled * 0.18);
-        ticking = false;
-      });
+    let raf = 0;
+    const update = () => {
+      const el = sectionRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      // Distance scrolled through the hero (0 at top of page)
+      const scrolled = Math.min(Math.max(-rect.top, 0), rect.height);
+      // Main photo lags behind scroll (moves less → clear parallax)
+      setBgY(scrolled * 0.55);
+      // Text/logo stays closer to normal scroll
+      setContentY(scrolled * 0.12);
     };
 
-    onScroll();
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(update);
+    };
+
+    update();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener("resize", onScroll, { passive: true });
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[88vh] flex items-center overflow-hidden"
+      className="relative min-h-[90vh] sm:min-h-[92vh] flex items-center overflow-hidden"
     >
-      {/* Parallax background layer — taller so edges don't show when shifting */}
+      {/* Main photo — parallax layer */}
       <div
-        className="absolute inset-x-0 -top-[15%] h-[130%] will-change-transform"
-        style={{ transform: `translate3d(0, ${offset}px, 0)` }}
+        className="pointer-events-none absolute left-0 right-0 top-0 z-0 h-[120%] w-full will-change-transform"
+        style={{
+          transform: `translate3d(0, ${bgY}px, 0)`,
+        }}
+        aria-hidden
       >
-        <Image
-          src={HERO_IMG}
-          alt="Premium vehicle — paintless dent repair"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
-        />
+        <div className="relative h-full w-full">
+          <Image
+            src={HERO_IMG}
+            alt="Premium vehicle — paintless dent repair"
+            fill
+            priority
+            className="object-cover object-[center_40%] scale-110"
+            sizes="100vw"
+          />
+        </div>
       </div>
 
-      <div className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/60 to-[#05080c]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(0,212,255,0.18),_transparent_55%)]" />
+      {/* Overlays stay fixed to the section (no parallax) */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/70 via-black/55 to-[#05080c]" />
+      <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_top,_rgba(0,212,255,0.2),_transparent_55%)]" />
 
+      {/* Foreground content */}
       <div
-        className="relative z-10 max-w-6xl mx-auto px-4 py-16 sm:py-20 w-full text-center will-change-transform"
-        style={{ transform: `translate3d(0, ${contentOffset}px, 0)` }}
+        className="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center sm:py-20 will-change-transform"
+        style={{ transform: `translate3d(0, ${contentY}px, 0)` }}
       >
-        <div className="flex justify-center mb-6">
+        <div className="mb-6 flex justify-center">
           <div className="relative">
-            <div className="absolute inset-0 rounded-full bg-cyan-400/30 blur-xl scale-150" />
+            <div className="absolute inset-0 scale-150 rounded-full bg-cyan-400/30 blur-xl" />
             <Image
               src="/logo.png"
               alt="Hail Lions"
               width={100}
               height={100}
-              className="relative rounded-full w-24 h-24 sm:w-28 sm:h-28 ring-2 ring-cyan-400/50 shadow-2xl shadow-cyan-500/30"
+              className="relative h-24 w-24 rounded-full shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/50 sm:h-28 sm:w-28"
               priority
             />
           </div>
         </div>
 
-        <p className="inline-flex items-center gap-2 text-cyan-300 text-sm font-medium mb-4 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30">
+        <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-sm font-medium text-cyan-300">
           <Sparkles size={14} />
           Houston · Baytown · Mobile PDR
         </p>
 
-        <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-4 leading-[1.05] text-glow">
+        <h1 className="text-glow mb-4 text-4xl font-bold leading-[1.05] text-white sm:text-5xl md:text-7xl">
           The King of
           <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400">
+          <span className="bg-gradient-to-r from-cyan-300 via-cyan-400 to-blue-400 bg-clip-text text-transparent">
             Dent Repair
           </span>
         </h1>
 
-        <p className="text-base sm:text-xl text-gray-200 max-w-2xl mx-auto mb-8 leading-relaxed">
+        <p className="mx-auto mb-8 max-w-2xl text-base leading-relaxed text-gray-200 sm:text-xl">
           Hail damage, door dings, and creases — fixed at your location without
           paint.{" "}
-          <span className="text-white font-medium">
+          <span className="font-medium text-white">
             100% satisfaction guarantee · Lifetime warranty
           </span>
         </p>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 justify-center max-w-md sm:max-w-none mx-auto">
+        <div className="mx-auto flex max-w-md flex-col justify-center gap-3 sm:max-w-none sm:flex-row sm:gap-4">
           <Link
             href="/book"
-            className="inline-flex items-center justify-center gap-2 bg-cyan-400 hover:bg-cyan-300 active:bg-cyan-200 text-black font-bold text-base sm:text-lg px-8 py-4 rounded-2xl transition shadow-[0_0_40px_rgba(0,212,255,0.45)] min-h-[52px] w-full sm:w-auto"
+            className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl bg-cyan-400 px-8 py-4 text-base font-bold text-black shadow-[0_0_40px_rgba(0,212,255,0.45)] transition hover:bg-cyan-300 active:bg-cyan-200 sm:w-auto sm:text-lg"
           >
             <Camera size={22} />
             Start with Photos
           </Link>
           <a
             href={`tel:${PHONE_TEL}`}
-            className="inline-flex items-center justify-center gap-2 border border-white/30 bg-white/5 backdrop-blur text-white hover:bg-white/10 font-semibold text-base sm:text-lg px-8 py-4 rounded-2xl transition min-h-[52px] w-full sm:w-auto"
+            className="inline-flex min-h-[52px] w-full items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/5 px-8 py-4 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10 sm:w-auto sm:text-lg"
           >
             <Phone size={22} />
             {PHONE}
