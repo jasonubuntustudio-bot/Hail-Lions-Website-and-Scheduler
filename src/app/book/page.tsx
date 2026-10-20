@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import Image from "next/image";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   Camera,
@@ -11,28 +10,18 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
-  Upload,
+  X,
+  ImagePlus,
 } from "lucide-react";
+import { SERVICE_TYPES, TIME_WINDOWS } from "@/lib/booking";
+import { PHONE, PHONE_TEL } from "@/lib/utils";
 
 type Step = 1 | 2 | 3 | 4 | 5;
-
-const SERVICE_TYPES = [
-  { id: "hail_damage", label: "Hail Damage" },
-  { id: "door_ding", label: "Door Ding / Dent" },
-  { id: "crease", label: "Crease / Larger Dent" },
-  { id: "classic_car", label: "Classic Car PDR" },
-  { id: "other_pdr", label: "Other Paintless Repair" },
-];
-
-const TIME_WINDOWS = [
-  "Morning (8 AM – 12 PM)",
-  "Afternoon (12 PM – 4 PM)",
-  "Late Afternoon (4 PM – 7 PM)",
-];
 
 export default function BookPage() {
   const [step, setStep] = useState<Step>(1);
   const [photos, setPhotos] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [serviceType, setServiceType] = useState("");
   const [vehicle, setVehicle] = useState({
     year: "",
@@ -59,15 +48,34 @@ export default function BookPage() {
   });
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedWindow, setSelectedWindow] = useState("");
+  const [notes, setNotes] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [confirmationCode, setConfirmationCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setPhotos(Array.from(e.target.files));
-    }
+  // Object URLs for thumbnails
+  useEffect(() => {
+    const urls = photos.map((f) => URL.createObjectURL(f));
+    setPreviews(urls);
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+  }, [photos]);
+
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }, []);
+
+  const addPhotos = (list: FileList | null) => {
+    if (!list?.length) return;
+    const next = [...photos, ...Array.from(list)].slice(0, 8);
+    setPhotos(next);
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((p) => p.filter((_, i) => i !== index));
   };
 
   const canProceed = () => {
@@ -90,30 +98,35 @@ export default function BookPage() {
     setSubmitting(true);
     setSubmitError("");
     try {
-      const res = await fetch("/api/book", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          fullName: contact.fullName,
-          phone: contact.phone,
-          email: contact.email,
-          serviceType,
-          preferredDate: selectedDate,
-          preferredWindow: selectedWindow,
-          vehicle,
-          location,
-          isInsurance,
-          claim,
-          photoCount: photos.length,
-        }),
-      });
+      const form = new FormData();
+      form.set("fullName", contact.fullName);
+      form.set("phone", contact.phone);
+      form.set("email", contact.email);
+      form.set("serviceType", serviceType);
+      form.set("preferredDate", selectedDate);
+      form.set("preferredWindow", selectedWindow);
+      form.set("vehicleYear", vehicle.year);
+      form.set("vehicleMake", vehicle.make);
+      form.set("vehicleModel", vehicle.model);
+      form.set("vehicleColor", vehicle.color);
+      form.set("vehicleVin", vehicle.vin);
+      form.set("address", location.address);
+      form.set("city", location.city);
+      form.set("zip", location.zip);
+      form.set("isInsurance", String(isInsurance));
+      form.set("claimNumber", claim.claimNumber);
+      form.set("adjusterName", claim.adjusterName);
+      form.set("adjusterPhone", claim.adjusterPhone);
+      form.set("notes", notes);
+      photos.forEach((f) => form.append("photos", f));
+
+      const res = await fetch("/api/book", { method: "POST", body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data.ok) {
-        setSubmitError(
-          data.error || "Could not send request. Please call us."
-        );
+        setSubmitError(data.error || "Could not send request. Please call us.");
         return;
       }
+      setConfirmationCode(data.confirmationCode || "");
       setSubmitted(true);
     } catch {
       setSubmitError("Network error. Please call us or try again.");
@@ -124,92 +137,134 @@ export default function BookPage() {
 
   if (submitted) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center px-4 py-16">
-        <div className="max-w-md w-full text-center">
-          <div className="w-20 h-20 rounded-full bg-cyan-500/20 flex items-center justify-center mx-auto mb-6">
+      <div className="flex min-h-[60vh] items-center justify-center px-4 py-16">
+        <div className="w-full max-w-md text-center">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-cyan-500/20">
             <Check className="text-cyan-400" size={40} />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-3">
-            Request Received
-          </h1>
-          <p className="text-gray-300 mb-6">
-            Jason or a technician will review your photos and contact you
-            shortly at{" "}
+          <h1 className="mb-3 text-3xl font-bold text-white">Request Received</h1>
+          {confirmationCode && (
+            <p className="mb-4 text-lg">
+              Confirmation{" "}
+              <span className="font-mono font-bold text-cyan-400">
+                {confirmationCode}
+              </span>
+            </p>
+          )}
+          <p className="mb-6 text-gray-300">
+            We&apos;ll review your photos and call{" "}
             <span className="text-cyan-400">{contact.phone}</span> to confirm
             the quote and schedule.
           </p>
-          <p className="text-sm text-gray-500 mb-8">
-            Most responses happen within 30–60 minutes during business hours.
+          <p className="mb-8 text-sm text-gray-500">
+            Most responses are within 30–60 minutes during business hours.
           </p>
-          <Link
-            href="/"
-            className="inline-block bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-6 py-3 rounded-lg"
-          >
-            Back to Home
-          </Link>
+          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/"
+              className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-black hover:bg-cyan-400"
+            >
+              Back to Home
+            </Link>
+            <a
+              href={`tel:${PHONE_TEL}`}
+              className="rounded-xl border border-cyan-500/50 px-6 py-3 font-semibold text-cyan-400"
+            >
+              Call {PHONE}
+            </a>
+          </div>
         </div>
       </div>
     );
   }
 
+  const inputClass =
+    "w-full rounded-xl border border-gray-700 bg-gray-900 px-4 py-3 text-white placeholder:text-gray-500 focus:border-cyan-500 focus:outline-none";
+
   return (
-    <div className="max-w-2xl mx-auto px-3 sm:px-4 pt-4 sm:pt-8 pb-28 sm:pb-10">
-      <div className="flex items-center justify-between mb-2">
-        <h1 className="text-lg sm:text-xl font-bold text-white">Book Service</h1>
+    <div className="mx-auto max-w-2xl px-3 pb-28 pt-4 sm:px-4 sm:pb-10 sm:pt-8">
+      <div className="mb-2 flex items-center justify-between">
+        <h1 className="text-lg font-bold text-white sm:text-xl">Book Service</h1>
         <span className="text-sm text-gray-400">Step {step} of 5</span>
       </div>
-      <div className="h-1.5 bg-gray-900 rounded mb-6 sm:mb-8">
+      <div className="mb-6 h-1.5 rounded bg-gray-900 sm:mb-8">
         <div
-          className="h-full bg-cyan-500 rounded transition-all duration-300"
+          className="h-full rounded bg-cyan-500 transition-all duration-300"
           style={{ width: `${(step / 5) * 100}%` }}
         />
       </div>
 
+      {/* Step 1 — Photos + service */}
       {step === 1 && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-              <Camera className="text-cyan-400" /> Damage Photos
+            <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
+              <Camera className="text-cyan-400" size={22} />
+              Photos of the damage
             </h2>
-            <p className="text-gray-400 text-sm">
-              Upload clear photos of the dents. Fastest way to get an accurate
-              quote.
+            <p className="mb-4 text-sm text-gray-400">
+              Clear photos get the fastest, most accurate quote. Up to 8 images.
+            </p>
+
+            <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-500/40 bg-cyan-500/5 px-4 py-8 transition hover:border-cyan-400 hover:bg-cyan-500/10">
+              <ImagePlus className="text-cyan-400" size={32} />
+              <span className="font-medium text-white">Take or upload photos</span>
+              <span className="text-xs text-gray-500">Camera or gallery · JPG/PNG</span>
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  addPhotos(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+
+            {previews.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+                {previews.map((src, i) => (
+                  <div
+                    key={src}
+                    className="relative aspect-square overflow-hidden rounded-xl border border-gray-700"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={src}
+                      alt={`Damage photo ${i + 1}`}
+                      className="h-full w-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removePhoto(i)}
+                      className="absolute right-1 top-1 rounded-full bg-black/80 p-1 text-white"
+                      aria-label="Remove photo"
+                    >
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <p className="mt-2 text-xs text-gray-500">
+              {photos.length}/8 photos selected
             </p>
           </div>
-          <label className="block border-2 border-dashed border-gray-700 active:border-cyan-500 rounded-2xl p-6 sm:p-8 text-center cursor-pointer transition min-h-[140px] flex flex-col items-center justify-center">
-            <Upload className="text-gray-500 mb-3" size={36} />
-            <span className="text-gray-300 font-medium text-base">
-              Tap to take or upload photos
-            </span>
-            <p className="text-xs text-gray-500 mt-1">Camera or gallery · JPG, PNG</p>
-            <input
-              type="file"
-              accept="image/*"
-              capture="environment"
-              multiple
-              className="hidden"
-              onChange={handlePhotoChange}
-            />
-          </label>
-          {photos.length > 0 && (
-            <p className="text-cyan-400 text-sm">
-              {photos.length} photo{photos.length > 1 ? "s" : ""} selected
-            </p>
-          )}
+
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Type of repair
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <h3 className="mb-3 font-medium text-white">What needs repair?</h3>
+            <div className="grid gap-2 sm:grid-cols-2">
               {SERVICE_TYPES.map((s) => (
                 <button
                   key={s.id}
                   type="button"
                   onClick={() => setServiceType(s.id)}
-                  className={`text-left px-4 py-3 rounded-xl border transition ${
+                  className={`rounded-xl border px-4 py-3 text-left text-sm font-medium transition ${
                     serviceType === s.id
-                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-400"
-                      : "border-gray-700 text-gray-300 hover:border-gray-500"
+                      ? "border-cyan-400 bg-cyan-500/15 text-cyan-300"
+                      : "border-gray-700 bg-gray-900 text-gray-300 hover:border-gray-500"
                   }`}
                 >
                   {s.label}
@@ -220,253 +275,187 @@ export default function BookPage() {
         </div>
       )}
 
+      {/* Step 2 — Vehicle */}
       {step === 2 && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-              <Car className="text-cyan-400" /> Vehicle Details
-            </h2>
-            <p className="text-gray-400 text-sm">
-              Required for accurate quoting and warranty records.
-            </p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Year *</label>
-              <input
-                type="number"
-                placeholder="2022"
-                value={vehicle.year}
-                onChange={(e) =>
-                  setVehicle({ ...vehicle, year: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Make *</label>
-              <input
-                type="text"
-                placeholder="Toyota"
-                value={vehicle.make}
-                onChange={(e) =>
-                  setVehicle({ ...vehicle, make: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Model *</label>
-              <input
-                type="text"
-                placeholder="Camry"
-                value={vehicle.model}
-                onChange={(e) =>
-                  setVehicle({ ...vehicle, model: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Color</label>
-              <input
-                type="text"
-                placeholder="Silver"
-                value={vehicle.color}
-                onChange={(e) =>
-                  setVehicle({ ...vehicle, color: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              VIN (optional)
-            </label>
+        <div className="space-y-4">
+          <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
+            <Car className="text-cyan-400" size={22} />
+            Vehicle
+          </h2>
+          <div className="grid grid-cols-2 gap-3">
             <input
-              type="text"
-              placeholder="For warranty & insurance"
+              className={inputClass}
+              placeholder="Year *"
+              value={vehicle.year}
+              onChange={(e) => setVehicle({ ...vehicle, year: e.target.value })}
+              inputMode="numeric"
+            />
+            <input
+              className={inputClass}
+              placeholder="Make *"
+              value={vehicle.make}
+              onChange={(e) => setVehicle({ ...vehicle, make: e.target.value })}
+            />
+          </div>
+          <input
+            className={inputClass}
+            placeholder="Model *"
+            value={vehicle.model}
+            onChange={(e) => setVehicle({ ...vehicle, model: e.target.value })}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              className={inputClass}
+              placeholder="Color"
+              value={vehicle.color}
+              onChange={(e) => setVehicle({ ...vehicle, color: e.target.value })}
+            />
+            <input
+              className={inputClass}
+              placeholder="VIN (optional)"
               value={vehicle.vin}
               onChange={(e) => setVehicle({ ...vehicle, vin: e.target.value })}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
             />
           </div>
-          <div className="border border-gray-800 rounded-xl p-4">
-            <label className="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isInsurance}
-                onChange={(e) => setIsInsurance(e.target.checked)}
-                className="w-5 h-5 rounded accent-cyan-500"
-              />
-              <span className="text-white font-medium">
-                This is an insurance claim
-              </span>
-            </label>
-            {isInsurance && (
-              <div className="mt-4 space-y-3">
-                <input
-                  type="text"
-                  placeholder="Claim number"
-                  value={claim.claimNumber}
-                  onChange={(e) =>
-                    setClaim({ ...claim, claimNumber: e.target.value })
-                  }
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-cyan-500 outline-none"
-                />
-                <input
-                  type="text"
-                  placeholder="Adjuster name"
-                  value={claim.adjusterName}
-                  onChange={(e) =>
-                    setClaim({ ...claim, adjusterName: e.target.value })
-                  }
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-cyan-500 outline-none"
-                />
-                <input
-                  type="tel"
-                  placeholder="Adjuster phone"
-                  value={claim.adjusterPhone}
-                  onChange={(e) =>
-                    setClaim({ ...claim, adjusterPhone: e.target.value })
-                  }
-                  className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-white focus:border-cyan-500 outline-none"
-                />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
 
-      {step === 3 && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-              <MapPin className="text-cyan-400" /> Service Location
-            </h2>
-            <p className="text-gray-400 text-sm">
-              We come to you. Enter the address where the vehicle will be.
-            </p>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-400 mb-1">
-              Street Address *
-            </label>
+          <label className="flex items-center gap-3 rounded-xl border border-gray-800 bg-gray-900/60 px-4 py-3">
             <input
-              type="text"
-              placeholder="123 Main St"
-              value={location.address}
-              onChange={(e) =>
-                setLocation({ ...location, address: e.target.value })
-              }
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
+              type="checkbox"
+              checked={isInsurance}
+              onChange={(e) => setIsInsurance(e.target.checked)}
+              className="h-5 w-5 accent-cyan-500"
             />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">City *</label>
+            <span className="text-sm text-gray-300">This is an insurance claim</span>
+          </label>
+
+          {isInsurance && (
+            <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-950 p-4">
               <input
-                type="text"
-                placeholder="Katy"
-                value={location.city}
+                className={inputClass}
+                placeholder="Claim number"
+                value={claim.claimNumber}
                 onChange={(e) =>
-                  setLocation({ ...location, city: e.target.value })
+                  setClaim({ ...claim, claimNumber: e.target.value })
                 }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
+              />
+              <input
+                className={inputClass}
+                placeholder="Adjuster name"
+                value={claim.adjusterName}
+                onChange={(e) =>
+                  setClaim({ ...claim, adjusterName: e.target.value })
+                }
+              />
+              <input
+                className={inputClass}
+                placeholder="Adjuster phone"
+                value={claim.adjusterPhone}
+                onChange={(e) =>
+                  setClaim({ ...claim, adjusterPhone: e.target.value })
+                }
+                type="tel"
               />
             </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">ZIP</label>
-              <input
-                type="text"
-                placeholder="77449"
-                value={location.zip}
-                onChange={(e) =>
-                  setLocation({ ...location, zip: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-          </div>
-          <p className="text-xs text-gray-500">
-            Service areas: Houston, Baytown, Katy, Cypress, The Woodlands,
-            Spring, Pearland, Sugar Land, Conroe, and surrounding cities.
-          </p>
+          )}
         </div>
       )}
 
+      {/* Step 3 — Location */}
+      {step === 3 && (
+        <div className="space-y-4">
+          <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
+            <MapPin className="text-cyan-400" size={22} />
+            Service location
+          </h2>
+          <p className="text-sm text-gray-400">
+            We come to you — home, work, or dealership.
+          </p>
+          <input
+            className={inputClass}
+            placeholder="Street address *"
+            value={location.address}
+            onChange={(e) =>
+              setLocation({ ...location, address: e.target.value })
+            }
+            autoComplete="street-address"
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              className={inputClass}
+              placeholder="City *"
+              value={location.city}
+              onChange={(e) => setLocation({ ...location, city: e.target.value })}
+              autoComplete="address-level2"
+            />
+            <input
+              className={inputClass}
+              placeholder="ZIP"
+              value={location.zip}
+              onChange={(e) => setLocation({ ...location, zip: e.target.value })}
+              inputMode="numeric"
+              autoComplete="postal-code"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Step 4 — Contact + schedule */}
       {step === 4 && (
-        <div className="space-y-6">
+        <div className="space-y-4">
+          <h2 className="mb-1 text-xl font-semibold text-white">Contact & time</h2>
+          <input
+            className={inputClass}
+            placeholder="Full name *"
+            value={contact.fullName}
+            onChange={(e) =>
+              setContact({ ...contact, fullName: e.target.value })
+            }
+            autoComplete="name"
+          />
+          <input
+            className={inputClass}
+            placeholder="Phone *"
+            type="tel"
+            value={contact.phone}
+            onChange={(e) => setContact({ ...contact, phone: e.target.value })}
+            autoComplete="tel"
+          />
+          <input
+            className={inputClass}
+            placeholder="Email (optional)"
+            type="email"
+            value={contact.email}
+            onChange={(e) => setContact({ ...contact, email: e.target.value })}
+            autoComplete="email"
+          />
+
           <div>
-            <h2 className="text-2xl font-bold text-white mb-2">
-              Contact & Preferred Time
-            </h2>
-          </div>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">
-                Full Name *
-              </label>
-              <input
-                type="text"
-                value={contact.fullName}
-                onChange={(e) =>
-                  setContact({ ...contact, fullName: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Phone *</label>
-              <input
-                type="tel"
-                placeholder="(281) 000-0000"
-                value={contact.phone}
-                onChange={(e) =>
-                  setContact({ ...contact, phone: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-sm text-gray-400 mb-1">Email</label>
-              <input
-                type="email"
-                value={contact.email}
-                onChange={(e) =>
-                  setContact({ ...contact, email: e.target.value })
-                }
-                className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-gray-400 mb-2">
-              Preferred Date *
+            <label className="mb-2 block text-sm text-gray-400">
+              Preferred date *
             </label>
             <input
               type="date"
+              min={minDate}
+              className={inputClass}
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
-              min={new Date().toISOString().split("T")[0]}
-              className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2.5 text-white focus:border-cyan-500 outline-none"
             />
           </div>
+
           <div>
-            <label className="block text-sm text-gray-400 mb-2">
-              Time Window *
+            <label className="mb-2 block text-sm text-gray-400">
+              Preferred window *
             </label>
-            <div className="space-y-2">
+            <div className="grid gap-2">
               {TIME_WINDOWS.map((w) => (
                 <button
                   key={w}
                   type="button"
                   onClick={() => setSelectedWindow(w)}
-                  className={`w-full text-left px-4 py-3 rounded-xl border transition ${
+                  className={`rounded-xl border px-4 py-3 text-left text-sm font-medium ${
                     selectedWindow === w
-                      ? "border-cyan-500 bg-cyan-500/10 text-cyan-400"
-                      : "border-gray-700 text-gray-300"
+                      ? "border-cyan-400 bg-cyan-500/15 text-cyan-300"
+                      : "border-gray-700 bg-gray-900 text-gray-300"
                   }`}
                 >
                   {w}
@@ -474,82 +463,100 @@ export default function BookPage() {
               ))}
             </div>
           </div>
+
+          <textarea
+            className={`${inputClass} min-h-[88px] resize-y`}
+            placeholder="Notes (gate code, preferred tech, etc.)"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
         </div>
       )}
 
+      {/* Step 5 — Review */}
       {step === 5 && (
-        <div className="space-y-6">
-          <div>
-            <h2 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
-              <Shield className="text-cyan-400" /> Guarantee & Policy
-            </h2>
+        <div className="space-y-4">
+          <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
+            <Shield className="text-cyan-400" size={22} />
+            Review & send
+          </h2>
+          <div className="space-y-2 rounded-2xl border border-gray-800 bg-gray-900/80 p-4 text-sm text-gray-300">
+            <p>
+              <span className="text-gray-500">Photos:</span> {photos.length}
+            </p>
+            <p>
+              <span className="text-gray-500">Service:</span>{" "}
+              {SERVICE_TYPES.find((s) => s.id === serviceType)?.label || "—"}
+            </p>
+            <p>
+              <span className="text-gray-500">Vehicle:</span> {vehicle.year}{" "}
+              {vehicle.make} {vehicle.model}
+            </p>
+            <p>
+              <span className="text-gray-500">Where:</span> {location.address},{" "}
+              {location.city}
+            </p>
+            <p>
+              <span className="text-gray-500">When:</span> {selectedDate} ·{" "}
+              {selectedWindow}
+            </p>
+            <p>
+              <span className="text-gray-500">Contact:</span> {contact.fullName} ·{" "}
+              {contact.phone}
+            </p>
           </div>
-          <div className="bg-gray-900 border border-gray-800 rounded-2xl p-5 text-sm text-gray-300 space-y-3">
-            <p>
-              <strong className="text-white">100% Satisfaction Guarantee:</strong>{" "}
-              If you are not completely satisfied with the repair, you do not
-              owe anything.
-            </p>
-            <p>
-              <strong className="text-white">Lifetime Warranty:</strong> All
-              paintless dent repairs carry a lifetime warranty for as long as
-              you own the vehicle.
-            </p>
-            <p>
-              <strong className="text-white">Mobile Service:</strong> A
-              technician will come to the address you provided. Please ensure
-              the vehicle is accessible and in a safe location.
-            </p>
-          </div>
-          <label className="flex items-start gap-3 cursor-pointer">
+          <label className="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-900/60 px-4 py-3">
             <input
               type="checkbox"
               checked={agreed}
               onChange={(e) => setAgreed(e.target.checked)}
-              className="mt-1 w-5 h-5 rounded accent-cyan-500"
+              className="mt-1 h-5 w-5 accent-cyan-500"
             />
-            <span className="text-gray-300 text-sm">
-              I have read and agree to the satisfaction guarantee, lifetime
-              warranty terms, and mobile service policies of Hail Lions LLC.
+            <span className="text-sm text-gray-300">
+              I understand this is a request for a mobile quote. Hail Lions will
+              confirm time and price before work begins. 100% satisfaction
+              guarantee.
             </span>
           </label>
         </div>
       )}
 
-      {/* Sticky mobile action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 backdrop-blur safe-bottom relative sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:mt-10 sm:pt-6 sm:border-t sm:border-gray-800">
-        <div className="max-w-2xl mx-auto px-3 sm:px-0 py-3 sm:py-0 flex justify-between gap-3">
+      {/* Sticky actions */}
+      <div className="relative fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 safe-bottom backdrop-blur sm:static sm:mt-10 sm:border-0 sm:bg-transparent sm:pt-6 sm:backdrop-blur-none">
+        {submitError && (
+          <p className="px-4 pt-2 text-center text-sm text-red-400 sm:px-0">
+            {submitError}
+          </p>
+        )}
+        <div className="mx-auto flex max-w-2xl gap-3 px-3 py-3 sm:px-0">
           {step > 1 ? (
             <button
               type="button"
               onClick={() => setStep((s) => (s - 1) as Step)}
-              className="flex items-center justify-center gap-1 text-gray-300 active:text-white px-4 min-h-[48px] min-w-[44px] rounded-lg active:bg-gray-900"
+              className="inline-flex min-h-[48px] items-center justify-center gap-1 rounded-xl border border-gray-700 px-4 font-medium text-gray-300"
             >
-              <ChevronLeft size={20} /> Back
+              <ChevronLeft size={18} />
+              Back
             </button>
           ) : (
-            <div className="min-w-[44px]" />
-          )}
-          {submitError && (
-            <p className="absolute -top-10 left-3 right-3 text-center text-sm text-red-400">
-              {submitError}
-            </p>
+            <div />
           )}
           {step < 5 ? (
             <button
               type="button"
               disabled={!canProceed()}
               onClick={() => setStep((s) => (s + 1) as Step)}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-cyan-500 active:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold px-6 min-h-[48px] rounded-xl transition"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none min-h-[48px]"
             >
-              Continue <ChevronRight size={20} />
+              Continue
+              <ChevronRight size={18} />
             </button>
           ) : (
             <button
               type="button"
               disabled={!canProceed() || submitting}
               onClick={handleSubmit}
-              className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-cyan-500 active:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold px-6 min-h-[48px] rounded-xl transition"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none min-h-[48px]"
             >
               {submitting ? "Sending…" : "Submit Request"}
             </button>
