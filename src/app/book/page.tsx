@@ -61,6 +61,8 @@ export default function BookPage() {
   const [selectedWindow, setSelectedWindow] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -81,6 +83,43 @@ export default function BookPage() {
       );
     if (step === 5) return agreed;
     return false;
+  };
+
+  const handleSubmit = async () => {
+    if (!canProceed() || submitting) return;
+    setSubmitting(true);
+    setSubmitError("");
+    try {
+      const res = await fetch("/api/book", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullName: contact.fullName,
+          phone: contact.phone,
+          email: contact.email,
+          serviceType,
+          preferredDate: selectedDate,
+          preferredWindow: selectedWindow,
+          vehicle,
+          location,
+          isInsurance,
+          claim,
+          photoCount: photos.length,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.ok) {
+        setSubmitError(
+          data.error || "Could not send request. Please call us."
+        );
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setSubmitError("Network error. Please call us or try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -478,7 +517,7 @@ export default function BookPage() {
       )}
 
       {/* Sticky mobile action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 backdrop-blur safe-bottom sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:mt-10 sm:pt-6 sm:border-t sm:border-gray-800">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 backdrop-blur safe-bottom relative sm:static sm:border-0 sm:bg-transparent sm:backdrop-blur-none sm:mt-10 sm:pt-6 sm:border-t sm:border-gray-800">
         <div className="max-w-2xl mx-auto px-3 sm:px-0 py-3 sm:py-0 flex justify-between gap-3">
           {step > 1 ? (
             <button
@@ -490,6 +529,11 @@ export default function BookPage() {
             </button>
           ) : (
             <div className="min-w-[44px]" />
+          )}
+          {submitError && (
+            <p className="absolute -top-10 left-3 right-3 text-center text-sm text-red-400">
+              {submitError}
+            </p>
           )}
           {step < 5 ? (
             <button
@@ -503,11 +547,11 @@ export default function BookPage() {
           ) : (
             <button
               type="button"
-              disabled={!canProceed()}
-              onClick={() => setSubmitted(true)}
+              disabled={!canProceed() || submitting}
+              onClick={handleSubmit}
               className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-cyan-500 active:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-bold px-6 min-h-[48px] rounded-xl transition"
             >
-              Submit Request
+              {submitting ? "Sending…" : "Submit Request"}
             </button>
           )}
         </div>
