@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-  --background: #0a0a0a;
-  --foreground: #f0f0f0;
+  --background: #05080c;
+  --foreground: #f0f4f8;
   --lion-cyan: #00d4ff;
   --lion-blue: #0088cc;
 }
@@ -23,14 +23,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Prevent iOS zoom on input focus — keep font-size >= 16px */
 input,
 select,
 textarea {
   font-size: 16px !important;
 }
 
-/* Comfortable tap targets */
 @layer utilities {
   .tap-target {
     min-height: 44px;
@@ -42,9 +40,14 @@ textarea {
   .safe-bottom {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
+  .text-glow {
+    text-shadow: 0 0 40px rgba(0, 212, 255, 0.35);
+  }
+  .card-glow {
+    box-shadow: 0 0 0 1px rgba(0, 212, 255, 0.12), 0 20px 50px -20px rgba(0, 0, 0, 0.8);
+  }
 }
 
-/* Remove blue tap highlight on mobile */
 a,
 button {
   -webkit-tap-highlight-color: transparent;
@@ -55,7 +58,7 @@ button {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #111;
+  background: #0a0a0a;
 }
 ::-webkit-scrollbar-thumb {
   background: #333;
