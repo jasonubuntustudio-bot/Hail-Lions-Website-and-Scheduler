@@ -5,9 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Camera, Phone, Sparkles } from "lucide-react";
 import { PHONE, PHONE_TEL } from "@/lib/utils";
-
-const HERO_IMG =
-  "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1920&q=85";
+import { IMAGES } from "@/lib/images";
 
 export default function ParallaxHero() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -23,11 +21,8 @@ export default function ParallaxHero() {
       const el = sectionRef.current;
       if (!el) return;
       const rect = el.getBoundingClientRect();
-      // Distance scrolled through the hero (0 at top of page)
       const scrolled = Math.min(Math.max(-rect.top, 0), rect.height);
-      // Main photo lags behind scroll (moves less → clear parallax)
       setBgY(scrolled * 0.55);
-      // Text/logo stays closer to normal scroll
       setContentY(scrolled * 0.12);
     };
 
@@ -49,35 +44,31 @@ export default function ParallaxHero() {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-[90vh] sm:min-h-[92vh] flex items-center overflow-hidden"
+      className="relative flex min-h-[90vh] items-center overflow-hidden sm:min-h-[92vh]"
     >
-      {/* Main photo — parallax layer */}
       <div
         className="pointer-events-none absolute left-0 right-0 top-0 z-0 h-[120%] w-full will-change-transform"
-        style={{
-          transform: `translate3d(0, ${bgY}px, 0)`,
-        }}
+        style={{ transform: `translate3d(0, ${bgY}px, 0)` }}
         aria-hidden
       >
-        <div className="relative h-full w-full">
+        <div className="relative h-full w-full overflow-hidden">
           <Image
-            src={HERO_IMG}
+            src={IMAGES.hero}
             alt="Premium vehicle — paintless dent repair"
             fill
             priority
-            className="object-cover object-[center_40%] scale-110"
-            sizes="100vw"
+            className="object-cover object-center"
+            sizes="(max-width: 768px) 100vw, 1400px"
+            quality={70}
           />
         </div>
       </div>
 
-      {/* Overlays stay fixed to the section (no parallax) */}
       <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/70 via-black/55 to-[#05080c]" />
       <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_at_top,_rgba(0,212,255,0.2),_transparent_55%)]" />
 
-      {/* Foreground content */}
       <div
-        className="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center sm:py-20 will-change-transform"
+        className="relative z-10 mx-auto w-full max-w-6xl px-4 py-16 text-center will-change-transform sm:py-20"
         style={{ transform: `translate3d(0, ${contentY}px, 0)` }}
       >
         <div className="mb-6 flex justify-center">
@@ -88,7 +79,7 @@ export default function ParallaxHero() {
               alt="Hail Lions"
               width={100}
               height={100}
-              className="relative h-24 w-24 rounded-full shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/50 sm:h-28 sm:w-28"
+              className="relative h-24 w-24 rounded-full object-cover shadow-2xl shadow-cyan-500/30 ring-2 ring-cyan-400/50 sm:h-28 sm:w-28"
               priority
             />
           </div>

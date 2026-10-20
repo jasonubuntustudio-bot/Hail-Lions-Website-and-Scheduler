@@ -4,57 +4,10 @@ import Link from "next/link";
 import { Camera, Shield, Truck } from "lucide-react";
 import ParallaxImage from "@/components/ParallaxImage";
 import { useParallax } from "@/hooks/useParallax";
+import { IMAGES } from "@/lib/images";
 
-const GALLERY = [
-  {
-    src: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=800&q=80",
-    alt: "Polished vehicle after repair",
-    label: "Factory finish restored",
-    factor: 0.28,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80",
-    alt: "Luxury car body detail",
-    label: "No paint · no fillers",
-    factor: 0.4,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=800&q=80",
-    alt: "Black sports car exterior",
-    label: "Door dings & creases",
-    factor: 0.22,
-  },
-  {
-    src: "https://images.unsplash.com/photo-1542362567-b07e54370788?auto=format&fit=crop&w=800&q=80",
-    alt: "Blue performance vehicle",
-    label: "Hail damage specialists",
-    factor: 0.36,
-  },
-];
-
-const SERVICES = [
-  {
-    href: "/services/hail-damage-repair",
-    title: "Hail Damage",
-    desc: "Storm dents fixed on-site without a full body shop rebuild.",
-    img: "https://images.unsplash.com/photo-1605727216801-e27ce1d0cc28?auto=format&fit=crop&w=900&q=80",
-    factor: 0.32,
-  },
-  {
-    href: "/services/paintless-dent-repair",
-    title: "Paintless Dent Repair",
-    desc: "Precision PDR that keeps your original paint and value.",
-    img: "https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=900&q=80",
-    factor: 0.42,
-  },
-  {
-    href: "/services/mobile-dent-repair",
-    title: "Mobile Service",
-    desc: "We come to your driveway, office, or dealership in Houston.",
-    img: "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?auto=format&fit=crop&w=900&q=80",
-    factor: 0.28,
-  },
-];
+const GALLERY_FACTORS = [0.28, 0.4, 0.22, 0.36];
+const SERVICE_FACTORS = [0.32, 0.42, 0.28];
 
 function FeatureCard({
   icon: Icon,
@@ -71,7 +24,7 @@ function FeatureCard({
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
-      className="will-change-transform rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6 card-glow"
+      className="card-glow will-change-transform rounded-2xl border border-cyan-500/20 bg-gradient-to-br from-gray-900 to-gray-950 p-6"
       style={{ transform: `translate3d(0, ${y * 0.5}px, 0)` }}
     >
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-500/15">
@@ -90,7 +43,6 @@ export default function HomeParallaxSections() {
 
   return (
     <>
-      {/* Photo gallery with staggered parallax */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:py-20">
         <div
           ref={headingGallery.ref as React.RefObject<HTMLDivElement>}
@@ -107,18 +59,19 @@ export default function HomeParallaxSections() {
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
-          {GALLERY.map((g) => (
+          {IMAGES.gallery.map((g, i) => (
             <div
               key={g.alt}
-              className="group relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10 card-glow"
+              className="card-glow group relative aspect-[3/4] overflow-hidden rounded-2xl border border-white/10"
             >
               <ParallaxImage
                 src={g.src}
                 alt={g.alt}
-                factor={g.factor}
+                factor={GALLERY_FACTORS[i] ?? 0.3}
                 className="absolute inset-0 h-full w-full"
-                imageClassName="object-cover transition duration-500 group-hover:scale-105"
-                sizes="(max-width: 768px) 50vw, 25vw"
+                imageClassName="object-cover object-center transition duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 50vw, 240px"
+                quality={65}
               />
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
               <p className="absolute bottom-3 left-3 right-3 text-sm font-medium text-white">
@@ -133,7 +86,6 @@ export default function HomeParallaxSections() {
         </p>
       </section>
 
-      {/* Service cards */}
       <section className="bg-gradient-to-b from-transparent via-cyan-950/20 to-transparent py-14 sm:py-20">
         <div className="mx-auto max-w-6xl px-4">
           <div
@@ -146,19 +98,20 @@ export default function HomeParallaxSections() {
             </h2>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
-            {SERVICES.map((s) => (
+            {IMAGES.services.map((s, i) => (
               <Link
                 key={s.href}
                 href={s.href}
-                className="group relative min-h-[280px] overflow-hidden rounded-2xl border border-white/10 transition hover:border-cyan-400/50 card-glow"
+                className="card-glow group relative min-h-[280px] overflow-hidden rounded-2xl border border-white/10 transition hover:border-cyan-400/50"
               >
                 <ParallaxImage
                   src={s.img}
                   alt={s.title}
-                  factor={s.factor}
+                  factor={SERVICE_FACTORS[i] ?? 0.3}
                   className="absolute inset-0 h-full w-full"
-                  imageClassName="object-cover transition duration-500 group-hover:scale-105"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  imageClassName="object-cover object-center transition duration-500 group-hover:scale-105"
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  quality={68}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-black/20" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -176,7 +129,6 @@ export default function HomeParallaxSections() {
         </div>
       </section>
 
-      {/* Why us — subtle card parallax */}
       <section className="mx-auto max-w-6xl px-4 py-14 sm:py-20">
         <div
           ref={headingWhy.ref as React.RefObject<HTMLDivElement>}
