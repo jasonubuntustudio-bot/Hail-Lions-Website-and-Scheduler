@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   ADMIN_SECTIONS,
   formatMoney,
@@ -221,13 +222,21 @@ export default function AdminPage() {
           <h1 className="text-lg font-bold text-white sm:text-xl">
             Quote board
           </h1>
-          <button
-            type="button"
-            onClick={() => load(password)}
-            className="rounded-lg border border-gray-700 px-3 py-1.5 text-xs text-gray-300"
-          >
-            Refresh
-          </button>
+          <div className="flex gap-2">
+            <Link
+              href="/admin/customers"
+              className="rounded-lg border border-cyan-500/40 px-3 py-1.5 text-xs font-medium text-cyan-300"
+            >
+              Customers
+            </Link>
+            <button
+              type="button"
+              onClick={() => load(password)}
+              className="rounded-lg border border-gray-700 px-3 py-1.5 text-xs text-gray-300"
+            >
+              Refresh
+            </button>
+          </div>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {(

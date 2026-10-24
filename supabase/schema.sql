@@ -120,3 +120,48 @@ create policy "Anyone can read open slots"
   using (is_open = true and slot_date >= current_date);
 
 -- Storage bucket: create "booking-photos" (private) in Dashboard → Storage
+
+-- ========== CRM ==========
+create table if not exists public.customers (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  full_name text not null,
+  phone text not null,
+  email text,
+  preferred_contact text default 'phone', -- phone | sms | email
+  address text,
+  city text,
+  zip text,
+  tags text[] default '{}',
+  notes text,
+  last_contact_at timestamptz,
+  next_follow_up_at date,
+  source text default 'website'
+);
+
+-- Unique phone normalized later in app; soft unique index
+create unique index if not exists customers_phone_uidx on public.customers (phone);
+create index if not exists customers_name_idx on public.customers (full_name);
+create index if not exists customers_follow_up_idx on public.customers (next_follow_up_at);
+
+alter table public.bookings add column if not exists customer_id uuid references public.customers(id);
+
+create table if not exists public.customer_interactions (
+  id uuid primary key default gen_random_uuid(),
+  customer_id uuid not null references public.customers(id) on delete cascade,
+  booking_id uuid references public.bookings(id) on delete set null,
+  created_at timestamptz not null default now(),
+  channel text not null default 'note', -- note | call | sms | email | quote | schedule | visit
+  direction text not null default 'outbound', -- outbound | inbound | system
+  subject text,
+  body text,
+  created_by text default 'admin'
+);
+
+create index if not exists customer_interactions_customer_idx
+  on public.customer_interactions (customer_id, created_at desc);
+
+alter table public.customers enable row level security;
+alter table public.customer_interactions enable row level security;
+-- Admin uses service role; no public policies on CRM tables

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { makeConfirmationCode } from "@/lib/booking";
 import { notifyAdmin, notifyCustomer } from "@/lib/notify";
+import { upsertCustomerFromLead } from "@/lib/crm-server";
 
 export const runtime = "nodejs";
 
@@ -186,6 +187,26 @@ export async function POST(req: NextRequest) {
         booking_id: row.id,
         storage_path: path,
       });
+    }
+
+    try {
+      await upsertCustomerFromLead({
+        fullName: data.fullName.trim(),
+        phone: data.phone.trim(),
+        email: data.email.trim() || null,
+        address: data.location.address || null,
+        city: data.location.city || null,
+        zip: data.location.zip || null,
+        bookingId: row.id,
+        interaction: {
+          channel: "quote",
+          direction: "inbound",
+          subject: "Quote request submitted",
+          body: `Website quote request. Service: ${data.serviceType || "n/a"}. Photos: ${files.length}.`,
+        },
+      });
+    } catch (e) {
+      console.error("[book] crm upsert", e);
     }
 
     await notifyAdmin({

@@ -96,6 +96,30 @@ export async function PATCH(req: NextRequest) {
       event: "quoted",
       message: `Hail Lions quote for ${before.full_name}: ${formatMoney(cents)}. Open your link to accept and pick a time.`,
     });
+    // CRM timeline
+    const { data: bk } = await supabase
+      .from("bookings")
+      .select("customer_id")
+      .eq("id", id)
+      .maybeSingle();
+    if (bk?.customer_id) {
+      await supabase.from("customer_interactions").insert({
+        customer_id: bk.customer_id,
+        booking_id: id,
+        channel: "quote",
+        direction: "outbound",
+        subject: "Quote sent",
+        body: `Quoted ${formatMoney(cents)}. ${body.quoteNotes || ""}`.trim(),
+        created_by: "admin",
+      });
+      await supabase
+        .from("customers")
+        .update({
+          last_contact_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", bk.customer_id);
+    }
   }
 
   return NextResponse.json({ ok: true });
