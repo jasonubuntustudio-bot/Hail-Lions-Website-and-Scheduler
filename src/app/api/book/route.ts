@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { makeConfirmationCode } from "@/lib/booking";
+import { notifyAdmin, notifyCustomer } from "@/lib/notify";
 
 export const runtime = "nodejs";
 
 const MAX_PHOTOS = 8;
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024; // 4MB each
+const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
 
 type Parsed = {
   fullName: string;
   phone: string;
   email: string;
   serviceType: string;
-  preferredDate: string;
-  preferredWindow: string;
   vehicle: {
     year: string;
     make: string;
@@ -44,8 +43,6 @@ async function parseBody(req: NextRequest): Promise<Parsed> {
       phone: String(form.get("phone") || ""),
       email: String(form.get("email") || ""),
       serviceType: String(form.get("serviceType") || ""),
-      preferredDate: String(form.get("preferredDate") || ""),
-      preferredWindow: String(form.get("preferredWindow") || ""),
       vehicle: {
         year: String(form.get("vehicleYear") || ""),
         make: String(form.get("vehicleMake") || ""),
@@ -75,8 +72,6 @@ async function parseBody(req: NextRequest): Promise<Parsed> {
     phone: body.phone || "",
     email: body.email || "",
     serviceType: body.serviceType || "",
-    preferredDate: body.preferredDate || "",
-    preferredWindow: body.preferredWindow || "",
     vehicle: body.vehicle || {
       year: "",
       make: "",
@@ -120,20 +115,18 @@ export async function POST(req: NextRequest) {
     const code = makeConfirmationCode();
 
     if (!isAdminConfigured()) {
-      console.warn("[book] demo mode", {
+      console.warn("[book] demo mode quote request", {
         code,
         name: data.fullName,
         phone: data.phone,
         photos: files.length,
-        service: data.serviceType,
-        date: data.preferredDate,
       });
       return NextResponse.json({
         ok: true,
         mode: "demo",
         confirmationCode: code,
         message:
-          "Request received (demo mode). Connect Supabase to save permanently.",
+          "Quote request received (demo mode). Connect Supabase to save permanently.",
       });
     }
 
@@ -143,12 +136,11 @@ export async function POST(req: NextRequest) {
       .from("bookings")
       .insert({
         confirmation_code: code,
+        status: "quote_requested",
         full_name: data.fullName.trim(),
         phone: data.phone.trim(),
         email: data.email.trim() || null,
         service_type: data.serviceType || null,
-        preferred_date: data.preferredDate || null,
-        preferred_window: data.preferredWindow || null,
         vehicle_year: data.vehicle.year || null,
         vehicle_make: data.vehicle.make || null,
         vehicle_model: data.vehicle.model || null,
@@ -163,7 +155,6 @@ export async function POST(req: NextRequest) {
         adjuster_phone: data.claim.adjusterPhone || null,
         notes: data.notes || null,
         photo_count: files.length,
-        status: "new",
       })
       .select("id")
       .single();
@@ -171,12 +162,11 @@ export async function POST(req: NextRequest) {
     if (error || !row) {
       console.error("[book] insert", error);
       return NextResponse.json(
-        { ok: false, error: "Could not save booking. Please call us." },
+        { ok: false, error: "Could not save request. Please call us." },
         { status: 500 }
       );
     }
 
-    // Upload photos to storage bucket "booking-photos"
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
@@ -197,6 +187,22 @@ export async function POST(req: NextRequest) {
         storage_path: path,
       });
     }
+
+    await notifyAdmin({
+      event: "quote_requested",
+      confirmationCode: code,
+      fullName: data.fullName.trim(),
+      phone: data.phone.trim(),
+      photoCount: files.length,
+      message: `New quote request ${code} from ${data.fullName.trim()} (${files.length} photos).`,
+    });
+    await notifyCustomer({
+      toPhone: data.phone.trim(),
+      toEmail: data.email.trim() || null,
+      confirmationCode: code,
+      event: "quote_requested",
+      message: `Hail Lions received your photos. Code ${code}. We'll send a quote soon.`,
+    });
 
     return NextResponse.json({
       ok: true,

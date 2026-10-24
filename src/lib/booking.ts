@@ -12,7 +12,19 @@ export const TIME_WINDOWS = [
   "Late Afternoon (4 PM – 7 PM)",
 ] as const;
 
-/** Generate a short human code like HL-A7K2 */
+export const BOOKING_STATUSES = [
+  "quote_requested",
+  "quoted",
+  "quote_approved",
+  "scheduled",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "declined",
+] as const;
+
+export type BookingStatus = (typeof BOOKING_STATUSES)[number];
+
 export function makeConfirmationCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let s = "HL-";
@@ -23,5 +35,51 @@ export function makeConfirmationCode() {
 }
 
 export function serviceLabel(id: string) {
-  return SERVICE_TYPES.find((s) => s.id === id)?.label ?? id;
+  return SERVICE_TYPES.find((s) => s.id === id)?.label ?? (id || "—");
 }
+
+export function statusLabel(status: string) {
+  const map: Record<string, string> = {
+    quote_requested: "Pending quote",
+    quoted: "Quote sent",
+    quote_approved: "Quote accepted",
+    scheduled: "Scheduled",
+    in_progress: "In progress",
+    completed: "Completed",
+    cancelled: "Cancelled",
+    declined: "Declined",
+    new: "Pending quote",
+    contacted: "Contacted",
+  };
+  return map[status] ?? status;
+}
+
+export function formatMoney(cents: number | null | undefined) {
+  if (cents == null || Number.isNaN(cents)) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(cents / 100);
+}
+
+/** Admin board columns */
+export const ADMIN_SECTIONS = [
+  {
+    id: "pending",
+    title: "Pending",
+    description: "Photos received — send a quote",
+    statuses: ["quote_requested", "new"],
+  },
+  {
+    id: "quoted",
+    title: "Quoted",
+    description: "Waiting for customer to accept",
+    statuses: ["quoted"],
+  },
+  {
+    id: "accepted",
+    title: "Accepted",
+    description: "Quote approved — schedule or already booked",
+    statuses: ["quote_approved", "scheduled"],
+  },
+] as const;

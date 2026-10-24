@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Camera,
@@ -12,11 +12,12 @@ import {
   Check,
   X,
   ImagePlus,
+  Lock,
 } from "lucide-react";
-import { SERVICE_TYPES, TIME_WINDOWS } from "@/lib/booking";
+import { SERVICE_TYPES } from "@/lib/booking";
 import { PHONE, PHONE_TEL } from "@/lib/utils";
 
-type Step = 1 | 2 | 3 | 4 | 5;
+type Step = 1 | 2 | 3 | 4;
 
 export default function BookPage() {
   const [step, setStep] = useState<Step>(1);
@@ -46,8 +47,6 @@ export default function BookPage() {
     phone: "",
     email: "",
   });
-  const [selectedDate, setSelectedDate] = useState("");
-  const [selectedWindow, setSelectedWindow] = useState("");
   const [notes, setNotes] = useState("");
   const [agreed, setAgreed] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -55,23 +54,15 @@ export default function BookPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Object URLs for thumbnails
   useEffect(() => {
     const urls = photos.map((f) => URL.createObjectURL(f));
     setPreviews(urls);
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [photos]);
 
-  const minDate = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toISOString().slice(0, 10);
-  }, []);
-
   const addPhotos = (list: FileList | null) => {
     if (!list?.length) return;
-    const next = [...photos, ...Array.from(list)].slice(0, 8);
-    setPhotos(next);
+    setPhotos((p) => [...p, ...Array.from(list)].slice(0, 8));
   };
 
   const removePhoto = (index: number) => {
@@ -82,14 +73,7 @@ export default function BookPage() {
     if (step === 1) return photos.length > 0 || serviceType !== "";
     if (step === 2) return !!(vehicle.year && vehicle.make && vehicle.model);
     if (step === 3) return !!(location.address && location.city);
-    if (step === 4)
-      return !!(
-        contact.fullName &&
-        contact.phone &&
-        selectedDate &&
-        selectedWindow
-      );
-    if (step === 5) return agreed;
+    if (step === 4) return !!(contact.fullName && contact.phone && agreed);
     return false;
   };
 
@@ -103,8 +87,6 @@ export default function BookPage() {
       form.set("phone", contact.phone);
       form.set("email", contact.email);
       form.set("serviceType", serviceType);
-      form.set("preferredDate", selectedDate);
-      form.set("preferredWindow", selectedWindow);
       form.set("vehicleYear", vehicle.year);
       form.set("vehicleMake", vehicle.make);
       form.set("vehicleModel", vehicle.model);
@@ -142,30 +124,31 @@ export default function BookPage() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-cyan-500/20">
             <Check className="text-cyan-400" size={40} />
           </div>
-          <h1 className="mb-3 text-3xl font-bold text-white">Request Received</h1>
+          <h1 className="mb-3 text-3xl font-bold text-white">Photos Received</h1>
           {confirmationCode && (
             <p className="mb-4 text-lg">
-              Confirmation{" "}
+              Code{" "}
               <span className="font-mono font-bold text-cyan-400">
                 {confirmationCode}
               </span>
             </p>
           )}
-          <p className="mb-6 text-gray-300">
-            We&apos;ll review your photos and call{" "}
-            <span className="text-cyan-400">{contact.phone}</span> to confirm
-            the quote and schedule.
+          <p className="mb-4 text-gray-300">
+            Our team will review your photos and send a quote. You&apos;ll get
+            an alert when it&apos;s ready — then you can accept and pick a time.
           </p>
-          <p className="mb-8 text-sm text-gray-500">
-            Most responses are within 30–60 minutes during business hours.
+          <p className="mb-6 text-sm text-gray-500">
+            Save your code. Check status anytime below.
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
-            <Link
-              href="/"
-              className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-black hover:bg-cyan-400"
-            >
-              Back to Home
-            </Link>
+            {confirmationCode && (
+              <Link
+                href={`/quote/${confirmationCode}`}
+                className="rounded-xl bg-cyan-500 px-6 py-3 font-semibold text-black hover:bg-cyan-400"
+              >
+                Track my quote
+              </Link>
+            )}
             <a
               href={`tel:${PHONE_TEL}`}
               className="rounded-xl border border-cyan-500/50 px-6 py-3 font-semibold text-cyan-400"
@@ -184,17 +167,21 @@ export default function BookPage() {
   return (
     <div className="mx-auto max-w-2xl px-3 pb-28 pt-4 sm:px-4 sm:pb-10 sm:pt-8">
       <div className="mb-2 flex items-center justify-between">
-        <h1 className="text-lg font-bold text-white sm:text-xl">Book Service</h1>
-        <span className="text-sm text-gray-400">Step {step} of 5</span>
+        <h1 className="text-lg font-bold text-white sm:text-xl">
+          Get a Quote
+        </h1>
+        <span className="text-sm text-gray-400">Step {step} of 4</span>
       </div>
+      <p className="mb-4 text-sm text-gray-400">
+        1) Send photos & info → 2) We quote → 3) You accept → 4) Pick a time
+      </p>
       <div className="mb-6 h-1.5 rounded bg-gray-900 sm:mb-8">
         <div
           className="h-full rounded bg-cyan-500 transition-all duration-300"
-          style={{ width: `${(step / 5) * 100}%` }}
+          style={{ width: `${(step / 4) * 100}%` }}
         />
       </div>
 
-      {/* Step 1 — Photos + service */}
       {step === 1 && (
         <div className="space-y-6">
           <div>
@@ -202,8 +189,13 @@ export default function BookPage() {
               <Camera className="text-cyan-400" size={22} />
               Photos of the damage
             </h2>
-            <p className="mb-4 text-sm text-gray-400">
+            <p className="mb-2 text-sm text-gray-400">
               Clear photos get the fastest, most accurate quote. Up to 8 images.
+            </p>
+            <p className="mb-4 flex items-start gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-3 py-2 text-xs text-cyan-200/90">
+              <Lock size={14} className="mt-0.5 shrink-0" />
+              Photos go only to Hail Lions techs for quoting — not shown on the
+              public website.
             </p>
 
             <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-500/40 bg-cyan-500/5 px-4 py-8 transition hover:border-cyan-400 hover:bg-cyan-500/10">
@@ -275,7 +267,6 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Step 2 — Vehicle */}
       {step === 2 && (
         <div className="space-y-4">
           <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
@@ -317,7 +308,6 @@ export default function BookPage() {
               onChange={(e) => setVehicle({ ...vehicle, vin: e.target.value })}
             />
           </div>
-
           <label className="flex items-center gap-3 rounded-xl border border-gray-800 bg-gray-900/60 px-4 py-3">
             <input
               type="checkbox"
@@ -327,7 +317,6 @@ export default function BookPage() {
             />
             <span className="text-sm text-gray-300">This is an insurance claim</span>
           </label>
-
           {isInsurance && (
             <div className="space-y-3 rounded-xl border border-gray-800 bg-gray-950 p-4">
               <input
@@ -360,7 +349,6 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Step 3 — Location */}
       {step === 3 && (
         <div className="space-y-4">
           <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
@@ -399,10 +387,12 @@ export default function BookPage() {
         </div>
       )}
 
-      {/* Step 4 — Contact + schedule */}
       {step === 4 && (
         <div className="space-y-4">
-          <h2 className="mb-1 text-xl font-semibold text-white">Contact & time</h2>
+          <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
+            <Shield className="text-cyan-400" size={22} />
+            Contact & send
+          </h2>
           <input
             className={inputClass}
             placeholder="Full name *"
@@ -422,65 +412,19 @@ export default function BookPage() {
           />
           <input
             className={inputClass}
-            placeholder="Email (optional)"
+            placeholder="Email (optional — for quote alerts)"
             type="email"
             value={contact.email}
             onChange={(e) => setContact({ ...contact, email: e.target.value })}
             autoComplete="email"
           />
-
-          <div>
-            <label className="mb-2 block text-sm text-gray-400">
-              Preferred date *
-            </label>
-            <input
-              type="date"
-              min={minDate}
-              className={inputClass}
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm text-gray-400">
-              Preferred window *
-            </label>
-            <div className="grid gap-2">
-              {TIME_WINDOWS.map((w) => (
-                <button
-                  key={w}
-                  type="button"
-                  onClick={() => setSelectedWindow(w)}
-                  className={`rounded-xl border px-4 py-3 text-left text-sm font-medium ${
-                    selectedWindow === w
-                      ? "border-cyan-400 bg-cyan-500/15 text-cyan-300"
-                      : "border-gray-700 bg-gray-900 text-gray-300"
-                  }`}
-                >
-                  {w}
-                </button>
-              ))}
-            </div>
-          </div>
-
           <textarea
             className={`${inputClass} min-h-[88px] resize-y`}
-            placeholder="Notes (gate code, preferred tech, etc.)"
+            placeholder="Notes (gate code, etc.)"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
           />
-        </div>
-      )}
-
-      {/* Step 5 — Review */}
-      {step === 5 && (
-        <div className="space-y-4">
-          <h2 className="mb-1 flex items-center gap-2 text-xl font-semibold text-white">
-            <Shield className="text-cyan-400" size={22} />
-            Review & send
-          </h2>
-          <div className="space-y-2 rounded-2xl border border-gray-800 bg-gray-900/80 p-4 text-sm text-gray-300">
+          <div className="rounded-2xl border border-gray-800 bg-gray-900/80 p-4 text-sm text-gray-300">
             <p>
               <span className="text-gray-500">Photos:</span> {photos.length}
             </p>
@@ -496,14 +440,6 @@ export default function BookPage() {
               <span className="text-gray-500">Where:</span> {location.address},{" "}
               {location.city}
             </p>
-            <p>
-              <span className="text-gray-500">When:</span> {selectedDate} ·{" "}
-              {selectedWindow}
-            </p>
-            <p>
-              <span className="text-gray-500">Contact:</span> {contact.fullName} ·{" "}
-              {contact.phone}
-            </p>
           </div>
           <label className="flex items-start gap-3 rounded-xl border border-gray-800 bg-gray-900/60 px-4 py-3">
             <input
@@ -513,16 +449,14 @@ export default function BookPage() {
               className="mt-1 h-5 w-5 accent-cyan-500"
             />
             <span className="text-sm text-gray-300">
-              I understand this is a request for a mobile quote. Hail Lions will
-              confirm time and price before work begins. 100% satisfaction
-              guarantee.
+              I understand photos are for quoting only. Hail Lions will send a
+              quote before any work is scheduled. 100% satisfaction guarantee.
             </span>
           </label>
         </div>
       )}
 
-      {/* Sticky actions */}
-      <div className="relative fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 safe-bottom backdrop-blur sm:static sm:mt-10 sm:border-0 sm:bg-transparent sm:pt-6 sm:backdrop-blur-none">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-gray-800 bg-black/95 safe-bottom backdrop-blur sm:static sm:mt-10 sm:border-0 sm:bg-transparent sm:pt-6 sm:backdrop-blur-none">
         {submitError && (
           <p className="px-4 pt-2 text-center text-sm text-red-400 sm:px-0">
             {submitError}
@@ -541,12 +475,12 @@ export default function BookPage() {
           ) : (
             <div />
           )}
-          {step < 5 ? (
+          {step < 4 ? (
             <button
               type="button"
               disabled={!canProceed()}
               onClick={() => setStep((s) => (s + 1) as Step)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none min-h-[48px]"
+              className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
             >
               Continue
               <ChevronRight size={18} />
@@ -556,9 +490,9 @@ export default function BookPage() {
               type="button"
               disabled={!canProceed() || submitting}
               onClick={handleSubmit}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none min-h-[48px]"
+              className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-xl bg-cyan-500 px-6 font-bold text-black transition enabled:hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:flex-none"
             >
-              {submitting ? "Sending…" : "Submit Request"}
+              {submitting ? "Sending…" : "Send for Quote"}
             </button>
           )}
         </div>
