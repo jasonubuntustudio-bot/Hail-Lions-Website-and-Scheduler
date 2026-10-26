@@ -7,7 +7,8 @@ import { upsertCustomerFromLead } from "@/lib/crm-server";
 export const runtime = "nodejs";
 
 const MAX_PHOTOS = 8;
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+/** Keep under Vercel Hobby ~4.5MB total request body — compress on client too */
+const MAX_PHOTO_BYTES = 3 * 1024 * 1024;
 
 type Parsed = {
   fullName: string;
@@ -107,7 +108,11 @@ export async function POST(req: NextRequest) {
     for (const f of files) {
       if (f.size > MAX_PHOTO_BYTES) {
         return NextResponse.json(
-          { ok: false, error: "Each photo must be under 4 MB." },
+          {
+            ok: false,
+            error:
+              "Each photo must be under 3 MB after compression. Use fewer photos or smaller images.",
+          },
           { status: 400 }
         );
       }
@@ -168,25 +173,58 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let photosSaved = 0;
+    const uploadErrors: string[] = [];
+
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
-      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      let ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      // Normalize HEIC / weird extensions so storage serves predictably
+      if (!["jpg", "jpeg", "png", "webp", "gif", "heic", "heif"].includes(ext)) {
+        ext = "jpg";
+      }
+      if (ext === "jpeg") ext = "jpg";
       const path = `${row.id}/${i}.${ext}`;
       const buffer = Buffer.from(await file.arrayBuffer());
+      const contentType =
+        file.type ||
+        (ext === "png"
+          ? "image/png"
+          : ext === "webp"
+            ? "image/webp"
+            : ext === "heic" || ext === "heif"
+              ? "image/heic"
+              : "image/jpeg");
+
       const { error: upErr } = await supabase.storage
         .from("booking-photos")
         .upload(path, buffer, {
-          contentType: file.type || "image/jpeg",
+          contentType,
           upsert: true,
         });
       if (upErr) {
         console.error("[book] photo upload", upErr);
+        uploadErrors.push(upErr.message || "upload failed");
         continue;
       }
-      await supabase.from("booking_photos").insert({
+      const { error: rowErr } = await supabase.from("booking_photos").insert({
         booking_id: row.id,
         storage_path: path,
       });
+      if (rowErr) {
+        console.error("[book] photo row", rowErr);
+        uploadErrors.push(rowErr.message);
+        continue;
+      }
+      photosSaved += 1;
+    }
+
+    // Keep photo_count accurate to what actually stored
+    if (photosSaved !== files.length) {
+      await supabase
+        .from("bookings")
+        .update({ photo_count: photosSaved })
+        .eq("id", row.id);
     }
 
     try {
@@ -202,7 +240,7 @@ export async function POST(req: NextRequest) {
           channel: "quote",
           direction: "inbound",
           subject: "Quote request submitted",
-          body: `Website quote request. Service: ${data.serviceType || "n/a"}. Photos: ${files.length}.`,
+          body: `Website quote request. Service: ${data.serviceType || "n/a"}. Photos saved: ${photosSaved}/${files.length}.`,
         },
       });
     } catch (e) {
@@ -214,21 +252,30 @@ export async function POST(req: NextRequest) {
       confirmationCode: code,
       fullName: data.fullName.trim(),
       phone: data.phone.trim(),
-      photoCount: files.length,
-      message: `New quote request ${code} from ${data.fullName.trim()} (${files.length} photos).`,
+      photoCount: photosSaved,
+      message: `New quote request ${code} from ${data.fullName.trim()} (${photosSaved} photos saved).`,
     });
     await notifyCustomer({
       toPhone: data.phone.trim(),
       toEmail: data.email.trim() || null,
       confirmationCode: code,
       event: "quote_requested",
-      message: `Hail Lions received your photos. Code ${code}. We'll send a quote soon.`,
+      message: `Hail Lions received your request. Code ${code}. We'll send a quote soon.`,
     });
 
     return NextResponse.json({
       ok: true,
       id: row.id,
       confirmationCode: code,
+      photosSaved,
+      photosRequested: files.length,
+      photoWarning:
+        files.length > 0 && photosSaved === 0
+          ? "Request saved but photos failed to upload. Please call us or try smaller JPG photos."
+          : photosSaved < files.length
+            ? `Only ${photosSaved} of ${files.length} photos saved. You can call us to send the rest.`
+            : undefined,
+      uploadErrors: uploadErrors.length ? uploadErrors.slice(0, 3) : undefined,
     });
   } catch (e) {
     console.error("[book] unexpected", e);
