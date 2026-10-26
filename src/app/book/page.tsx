@@ -60,9 +60,46 @@ export default function BookPage() {
     return () => urls.forEach((u) => URL.revokeObjectURL(u));
   }, [photos]);
 
-  const addPhotos = (list: FileList | null) => {
+  /** Shrink phone photos so the whole request fits under Vercel body limits */
+  async function compressImage(file: File): Promise<File> {
+    if (!file.type.startsWith("image/") && !/\.(heic|heif)$/i.test(file.name)) {
+      return file;
+    }
+    // Already small
+    if (file.size < 900_000 && file.type === "image/jpeg") return file;
+
+    try {
+      const bitmap = await createImageBitmap(file);
+      const maxEdge = 1600;
+      const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height));
+      const w = Math.max(1, Math.round(bitmap.width * scale));
+      const h = Math.max(1, Math.round(bitmap.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return file;
+      ctx.drawImage(bitmap, 0, 0, w, h);
+      bitmap.close();
+      const blob: Blob | null = await new Promise((resolve) =>
+        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.72)
+      );
+      if (!blob) return file;
+      const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+      return new File([blob], name, { type: "image/jpeg" });
+    } catch {
+      return file;
+    }
+  }
+
+  const addPhotos = async (list: FileList | null) => {
     if (!list?.length) return;
-    setPhotos((p) => [...p, ...Array.from(list)].slice(0, 8));
+    const incoming = Array.from(list).slice(0, 8);
+    const compressed: File[] = [];
+    for (const f of incoming) {
+      compressed.push(await compressImage(f));
+    }
+    setPhotos((p) => [...p, ...compressed].slice(0, 8));
   };
 
   const removePhoto = (index: number) => {
@@ -108,6 +145,9 @@ export default function BookPage() {
         setSubmitError(data.error || "Could not send request. Please call us.");
         return;
       }
+      if (data.photoWarning) {
+        setSubmitError(data.photoWarning);
+      }
       setConfirmationCode(data.confirmationCode || "");
       setSubmitted(true);
     } catch {
@@ -137,6 +177,11 @@ export default function BookPage() {
             Our team will review your photos and send a quote. You&apos;ll get
             an alert when it&apos;s ready — then you can accept and pick a time.
           </p>
+          {submitError && (
+            <p className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-200">
+              {submitError}
+            </p>
+          )}
           <p className="mb-6 text-sm text-gray-500">
             Save your code. Check status anytime below.
           </p>
@@ -198,22 +243,41 @@ export default function BookPage() {
               public website.
             </p>
 
-            <label className="flex min-h-[140px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-500/40 bg-cyan-500/5 px-4 py-8 transition hover:border-cyan-400 hover:bg-cyan-500/10">
-              <ImagePlus className="text-cyan-400" size={32} />
-              <span className="font-medium text-white">Take or upload photos</span>
-              <span className="text-xs text-gray-500">Camera or gallery · JPG/PNG</span>
-              <input
-                type="file"
-                accept="image/*"
-                capture="environment"
-                multiple
-                className="hidden"
-                onChange={(e) => {
-                  addPhotos(e.target.files);
-                  e.target.value = "";
-                }}
-              />
-            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-500/40 bg-cyan-500/5 px-3 py-6 transition hover:border-cyan-400">
+                <Camera className="text-cyan-400" size={28} />
+                <span className="text-sm font-medium text-white">Camera</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    void addPhotos(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+              <label className="flex min-h-[120px] cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-cyan-500/40 bg-cyan-500/5 px-3 py-6 transition hover:border-cyan-400">
+                <ImagePlus className="text-cyan-400" size={28} />
+                <span className="text-sm font-medium text-white">Gallery</span>
+                <span className="text-[10px] text-gray-500">JPG/PNG best</span>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/*"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => {
+                    void addPhotos(e.target.files);
+                    e.target.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <p className="mt-2 text-xs text-gray-500">
+              Photos are compressed on your device before upload so they save
+              reliably.
+            </p>
 
             {previews.length > 0 && (
               <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
