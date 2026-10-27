@@ -9,6 +9,12 @@ import {
   statusLabel,
 } from "@/lib/booking";
 import { PHONE, PHONE_TEL } from "@/lib/utils";
+import {
+  SlotCalendar,
+  formatLongDate,
+  formatTimeLabel,
+  type Slot,
+} from "@/components/SlotCalendar";
 import { Check, Calendar } from "lucide-react";
 
 type Booking = {
@@ -25,8 +31,6 @@ type Booking = {
   scheduledDate: string | null;
   scheduledWindow: string | null;
 };
-
-type Slot = { date: string; window: string };
 
 export default function QuoteStatusPage() {
   const params = useParams();
@@ -245,35 +249,26 @@ export default function QuoteStatusPage() {
 
       {booking.status === "quote_approved" && (
         <div className="mb-6">
-          <h2 className="mb-3 font-semibold text-white">Pick an available time</h2>
+          <h2 className="mb-3 flex items-center gap-2 font-semibold text-white">
+            <Calendar className="text-cyan-400" size={20} />
+            Pick a date &amp; time
+          </h2>
+          <p className="mb-3 text-xs text-gray-500">
+            Mon–Fri: 8:00 AM, 11:00 AM, 3:00 PM · Sat: 8:00 AM, 11:00 AM · Sun
+            closed
+          </p>
           {slots.length === 0 ? (
             <p className="text-sm text-gray-500">
               No open slots yet — we&apos;ll open times soon. Call {PHONE} if
               urgent.
             </p>
           ) : (
-            <div className="mb-4 max-h-64 space-y-2 overflow-y-auto">
-              {slots.map((s) => {
-                const key = `${s.date}|${s.window}`;
-                const active =
-                  picked &&
-                  picked.date === s.date &&
-                  picked.window === s.window;
-                return (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setPicked(s)}
-                    className={`block w-full rounded-xl border px-4 py-3 text-left text-sm ${
-                      active
-                        ? "border-cyan-400 bg-cyan-500/15 text-cyan-200"
-                        : "border-gray-700 bg-gray-900 text-gray-300"
-                    }`}
-                  >
-                    {s.date} · {s.window}
-                  </button>
-                );
-              })}
+            <div className="mb-4">
+              <SlotCalendar
+                slots={slots}
+                picked={picked}
+                onPick={setPicked}
+              />
             </div>
           )}
           <button
@@ -283,14 +278,28 @@ export default function QuoteStatusPage() {
             className="w-full rounded-xl bg-cyan-500 py-3.5 font-bold text-black disabled:opacity-40"
           >
             Confirm appointment
+            {picked
+              ? ` · ${formatTimeLabel(picked.window)}`
+              : ""}
           </button>
         </div>
       )}
 
       {booking.status === "scheduled" && (
-        <p className="mb-4 text-emerald-300">
-          You&apos;re booked. We&apos;ll see you then.
-        </p>
+        <div className="mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-emerald-200">
+          <p className="font-semibold">You&apos;re booked</p>
+          {booking.scheduledDate && (
+            <p className="mt-1 text-sm">
+              {formatLongDate(booking.scheduledDate)}
+              {booking.scheduledWindow
+                ? ` · ${formatTimeLabel(booking.scheduledWindow)}`
+                : ""}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-emerald-300/80">
+            We&apos;ll see you then. Call {PHONE} if you need to reschedule.
+          </p>
+        </div>
       )}
 
       {error && <p className="mb-3 text-sm text-red-400">{error}</p>}
