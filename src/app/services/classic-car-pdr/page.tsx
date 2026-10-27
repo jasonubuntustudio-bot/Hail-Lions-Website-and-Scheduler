@@ -6,6 +6,7 @@ export const metadata = {
   title: "Classic Car Paintless Dent Repair Houston",
   description:
     "PDR for classic and vintage cars in Houston. Preserve original paint and value. Careful, experienced technicians.",
+  alternates: { canonical: "/services/classic-car-pdr" },
 };
 
 export default function ClassicCarPdrPage() {
