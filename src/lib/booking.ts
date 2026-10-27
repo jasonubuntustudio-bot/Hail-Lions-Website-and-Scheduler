@@ -6,11 +6,18 @@ export const SERVICE_TYPES = [
   { id: "other_pdr", label: "Other Paintless Repair" },
 ] as const;
 
-export const TIME_WINDOWS = [
-  "Morning (8 AM – 12 PM)",
-  "Afternoon (12 PM – 4 PM)",
-  "Late Afternoon (4 PM – 7 PM)",
-] as const;
+/** Appointment start times — Mon–Fri: all three; Sat: 8 AM + 11 AM only; Sun: closed */
+export const TIME_WINDOWS = ["8:00 AM", "11:00 AM", "3:00 PM"] as const;
+
+export const WEEKDAY_WINDOWS = ["8:00 AM", "11:00 AM", "3:00 PM"] as const;
+export const SATURDAY_WINDOWS = ["8:00 AM", "11:00 AM"] as const;
+
+/** Windows allowed for a JS getDay() value (0=Sun … 6=Sat) */
+export function windowsForDayOfWeek(day: number): readonly string[] {
+  if (day === 0) return []; // Sunday closed
+  if (day === 6) return SATURDAY_WINDOWS;
+  return WEEKDAY_WINDOWS;
+}
 
 export const BOOKING_STATUSES = [
   "quote_requested",
