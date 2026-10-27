@@ -6,6 +6,7 @@ export const metadata = {
   title: "Service Areas — Greater Houston",
   description:
     "Hail Lions mobile paintless dent repair serves Houston, Baytown, Katy, Cypress, The Woodlands, Spring, Conroe, and surrounding cities.",
+  alternates: { canonical: "/areas" },
 };
 
 const FEATURED = [
