@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Houston TX",
   description:
     "Mobile paintless dent repair in Houston. Hail damage, door dings, creases. We come to you. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/houston" },
 };
 
 export default function HoustonPage() {
