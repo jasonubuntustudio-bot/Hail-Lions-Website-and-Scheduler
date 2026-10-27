@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { notifyCustomer, notifyAdmin } from "@/lib/notify";
+import { appointmentConfirmationTemplates } from "@/lib/templates";
 
 export const runtime = "nodejs";
 
@@ -238,7 +239,9 @@ export async function POST(req: NextRequest) {
 
     const { data: sched } = await supabase
       .from("bookings")
-      .select("phone, email, confirmation_code, full_name")
+      .select(
+        "phone, email, confirmation_code, full_name, address, city, zip, service_type, quote_amount_cents"
+      )
       .eq("id", row.id)
       .maybeSingle();
     if (sched?.confirmation_code) {
@@ -250,12 +253,26 @@ export async function POST(req: NextRequest) {
         photoCount: 0,
         message: `${sched.full_name} scheduled ${date} ${window} (${sched.confirmation_code}).`,
       });
+      const tpl = appointmentConfirmationTemplates({
+        customerName: sched.full_name || "there",
+        confirmationCode: sched.confirmation_code,
+        scheduledDate: date,
+        scheduledWindow: window,
+        address: sched.address,
+        city: sched.city,
+        zip: sched.zip,
+        serviceType: sched.service_type,
+        quoteAmountCents: sched.quote_amount_cents,
+      });
       await notifyCustomer({
         toPhone: sched.phone,
         toEmail: sched.email,
         confirmationCode: sched.confirmation_code,
         event: "scheduled",
-        message: `Hail Lions appointment confirmed: ${date}, ${window}.`,
+        message: tpl.sms,
+        smsBody: tpl.sms,
+        emailSubject: tpl.emailSubject,
+        emailBody: tpl.emailBody,
       });
     }
     return NextResponse.json({
