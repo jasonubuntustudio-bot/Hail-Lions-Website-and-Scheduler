@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Tomball TX",
   description:
     "Mobile paintless dent repair in Tomball, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/tomball" },
 };
 
 export default function TomballPage() {
