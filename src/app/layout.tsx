@@ -57,10 +57,16 @@ export const metadata: Metadata = {
     siteName: "Hail Lions",
     images: [
       {
+        url: "/images/hero.webp",
+        width: 1400,
+        height: 900,
+        alt: "Hail Lions mobile paintless dent repair — Houston TX",
+      },
+      {
         url: "/logo.png",
         width: 512,
         height: 512,
-        alt: "Hail Lions — mobile paintless dent repair Houston",
+        alt: "Hail Lions logo",
       },
     ],
   },
@@ -69,7 +75,7 @@ export const metadata: Metadata = {
     title: "Hail Lions — The King of Dent Repair",
     description:
       "Mobile paintless dent repair across greater Houston. Start with photos for a fast estimate.",
-    images: ["/logo.png"],
+    images: ["/images/hero.webp"],
   },
   robots: {
     index: true,
