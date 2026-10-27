@@ -428,7 +428,18 @@ export default function AdminPage() {
 
                   {b.scheduled_date && (
                     <p className="text-sm text-emerald-300">
-                      Scheduled: {b.scheduled_date} · {b.scheduled_window}
+                      Scheduled:{" "}
+                      {b.scheduled_date
+                        ? new Date(
+                            b.scheduled_date + "T12:00:00"
+                          ).toLocaleDateString("en-US", {
+                            weekday: "short",
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })
+                        : "—"}
+                      {b.scheduled_window ? ` · ${b.scheduled_window}` : ""}
                     </p>
                   )}
                 </div>
@@ -442,26 +453,34 @@ export default function AdminPage() {
       <div className="mt-10 rounded-2xl border border-gray-800 bg-gray-950 p-4">
         <h2 className="mb-2 font-semibold text-white">Open time slots</h2>
         <p className="mb-3 text-xs text-gray-500">
-          Customers only see these after they accept a quote.
+          Calendar date + clock times. Mon–Fri: 8:00 AM, 11:00 AM, 3:00 PM ·
+          Sat: 8:00 AM, 11:00 AM · Sun closed. Customers only see open slots
+          after they accept a quote. Prefer the seed SQL for bulk weeks.
         </p>
-        <div className="flex flex-wrap gap-2">
-          <input
-            type="date"
-            value={slotDate}
-            onChange={(e) => setSlotDate(e.target.value)}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
-          />
-          <select
-            value={slotWindow}
-            onChange={(e) => setSlotWindow(e.target.value)}
-            className="rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
-          >
-            {TIME_WINDOWS.map((w) => (
-              <option key={w} value={w}>
-                {w}
-              </option>
-            ))}
-          </select>
+        <div className="flex flex-wrap items-end gap-2">
+          <label className="block text-xs text-gray-500">
+            Date
+            <input
+              type="date"
+              value={slotDate}
+              onChange={(e) => setSlotDate(e.target.value)}
+              className="mt-1 block rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
+            />
+          </label>
+          <label className="block text-xs text-gray-500">
+            Time
+            <select
+              value={slotWindow}
+              onChange={(e) => setSlotWindow(e.target.value)}
+              className="mt-1 block rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 font-medium tabular-nums text-white"
+            >
+              {TIME_WINDOWS.map((w) => (
+                <option key={w} value={w}>
+                  {w}
+                </option>
+              ))}
+            </select>
+          </label>
           <button
             type="button"
             onClick={addSlot}
