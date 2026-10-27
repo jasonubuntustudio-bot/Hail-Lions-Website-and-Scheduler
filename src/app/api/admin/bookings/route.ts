@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
 import { notifyCustomer } from "@/lib/notify";
+import { quoteReminderTemplates } from "@/lib/templates";
 import { formatMoney } from "@/lib/booking";
 
 export const runtime = "nodejs";
@@ -88,13 +89,28 @@ export async function PATCH(req: NextRequest) {
   }
 
   if (updates.status === "quoted" && before?.confirmation_code) {
-    const cents = updates.quote_amount_cents as number | undefined;
+    const cents = (updates.quote_amount_cents as number) || 0;
+    const site =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      "https://hail-lions-website-and-scheduler.vercel.app";
+    const quoteUrl = `${site.replace(/\/$/, "")}/quote/${before.confirmation_code}`;
+    const tpl = quoteReminderTemplates({
+      customerName: before.full_name || "there",
+      quoteAmountCents: cents,
+      confirmationCode: before.confirmation_code,
+      quoteNotes: (updates.quote_notes as string) || null,
+      quoteUrl,
+      dayNumber: 1,
+    });
     await notifyCustomer({
       toPhone: before.phone,
       toEmail: before.email,
       confirmationCode: before.confirmation_code,
       event: "quoted",
-      message: `Hail Lions quote for ${before.full_name}: ${formatMoney(cents)}. Open your link to accept and pick a time.`,
+      message: tpl.sms,
+      smsBody: tpl.sms,
+      emailSubject: tpl.emailSubject,
+      emailBody: tpl.emailBody,
     });
     // CRM timeline
     const { data: bk } = await supabase
