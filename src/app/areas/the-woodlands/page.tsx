@@ -5,7 +5,8 @@ import { PHONE, PHONE_TEL } from "@/lib/utils";
 export const metadata = {
   title: "Paintless Dent Repair The Woodlands TX",
   description:
-    "Mobile paintless dent repair in The Woodlands. Hail damage and door dings fixed on-site. (281) 352-5434.",
+    "Mobile paintless dent repair in The Woodlands, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/the-woodlands" },
 };
 
 export default function TheWoodlandsPage() {
