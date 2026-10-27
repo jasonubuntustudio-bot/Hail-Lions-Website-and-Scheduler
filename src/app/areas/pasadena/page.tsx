@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Pasadena TX",
   description:
     "Mobile paintless dent repair in Pasadena, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/pasadena" },
 };
 
 export default function PasadenaPage() {
