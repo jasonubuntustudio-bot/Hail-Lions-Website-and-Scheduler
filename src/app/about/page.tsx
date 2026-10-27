@@ -13,6 +13,7 @@ export const metadata = {
   title: "About Us",
   description:
     "Meet the owners of Hail Lions LLC — Houston's mobile paintless dent repair specialists.",
+  alternates: { canonical: "/about" },
 };
 
 export default function AboutPage() {
