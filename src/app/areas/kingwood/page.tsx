@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Kingwood TX",
   description:
     "Mobile paintless dent repair in Kingwood, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/kingwood" },
 };
 
 export default function KingwoodPage() {
