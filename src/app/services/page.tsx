@@ -4,6 +4,7 @@ export const metadata = {
   title: "Services",
   description:
     "Paintless dent repair, hail damage, mobile service, classic car PDR — Hail Lions Houston.",
+  alternates: { canonical: "/services" },
 };
 
 const SERVICES = [
