@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair & Hail Damage Baytown TX",
   description:
     "Mobile paintless dent repair and hail damage repair in Baytown, Texas. We come to you. 100% guarantee. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/baytown" },
 };
 
 export default function BaytownPage() {
