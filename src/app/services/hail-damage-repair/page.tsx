@@ -6,6 +6,7 @@ export const metadata = {
   title: "Hail Damage Repair Houston",
   description:
     "Mobile hail damage repair in Houston. Paintless dent repair for hail-damaged vehicles. Insurance-friendly. Lifetime warranty.",
+  alternates: { canonical: "/services/hail-damage-repair" },
 };
 
 export default function HailDamageRepairPage() {
