@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Sugar Land TX",
   description:
     "Mobile paintless dent repair in Sugar Land, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/sugar-land" },
 };
 
 export default function SugarLandPage() {
