@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Spring TX",
   description:
     "Mobile paintless dent repair in Spring, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/spring" },
 };
 
 export default function SpringPage() {
