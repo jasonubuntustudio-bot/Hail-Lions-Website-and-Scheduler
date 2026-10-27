@@ -6,6 +6,7 @@ export const metadata = {
   title: "Mobile Dent Repair Houston",
   description:
     "Mobile paintless dent repair in Houston. We come to your home, office, or dealership. No drop-off required.",
+  alternates: { canonical: "/services/mobile-dent-repair" },
 };
 
 export default function MobileDentRepairPage() {
