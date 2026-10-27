@@ -5,6 +5,7 @@ export const metadata = {
   title: "100% Satisfaction Guarantee & Lifetime Warranty",
   description:
     "Hail Lions offers a 100% satisfaction guarantee and lifetime warranty on every paintless dent repair.",
+  alternates: { canonical: "/guarantee" },
 };
 
 export default function GuaranteePage() {
