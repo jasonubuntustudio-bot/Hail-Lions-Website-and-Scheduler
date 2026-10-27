@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient, isAdminConfigured } from "@/lib/supabase/admin";
-import { TIME_WINDOWS } from "@/lib/booking";
+import { windowsForDayOfWeek } from "@/lib/booking";
 
 export const runtime = "nodejs";
 
@@ -13,15 +13,16 @@ function authorized(req: NextRequest) {
 /** Open slots for customers (next 21 days) */
 export async function GET() {
   if (!isAdminConfigured()) {
-    // Demo slots: next 5 weekdays, all windows
-    const demo = [];
+    // Demo: Mon–Fri 8/11/3, Sat 8/11, skip Sunday
+    const demo: { date: string; window: string }[] = [];
     const d = new Date();
-    for (let i = 1; demo.length < 12 && i < 21; i++) {
+    for (let i = 1; i < 21 && demo.length < 30; i++) {
       const day = new Date(d);
       day.setDate(d.getDate() + i);
-      if (day.getDay() === 0) continue; // skip Sunday
+      const windows = windowsForDayOfWeek(day.getDay());
+      if (!windows.length) continue;
       const iso = day.toISOString().slice(0, 10);
-      for (const w of TIME_WINDOWS) {
+      for (const w of windows) {
         demo.push({ date: iso, window: w });
       }
     }
