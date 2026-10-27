@@ -1,8 +1,33 @@
-import Link from "next/link";
+import type { Metadata } from "next";
 import { MapPin, Shield, Truck, Check } from "lucide-react";
 import ParallaxHero from "@/components/ParallaxHero";
 import ParallaxBand from "@/components/ParallaxBand";
 import HomeParallaxSections from "@/components/HomeParallaxSections";
+import { PHONE } from "@/lib/utils";
+
+export const metadata: Metadata = {
+  title: {
+    absolute: "Hail Lions | Mobile Paintless Dent Repair Houston",
+  },
+  description:
+    "Houston's mobile paintless dent repair specialists. Hail damage, door dings, creases — we come to you. 100% satisfaction guarantee. Lifetime warranty. Call " +
+    PHONE,
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Hail Lions — The King of Dent Repair",
+    description:
+      "Mobile paintless dent repair across greater Houston. Start with photos for a fast estimate.",
+    url: "/",
+    images: [
+      {
+        url: "/images/hero.webp",
+        alt: "Hail Lions mobile paintless dent repair Houston",
+      },
+    ],
+  },
+};
 
 export default function HomePage() {
   return (
