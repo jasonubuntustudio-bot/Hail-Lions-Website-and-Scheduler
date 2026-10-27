@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Cypress TX",
   description:
     "Mobile paintless dent repair in Cypress, Texas. Hail and door ding repair at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/cypress" },
 };
 
 export default function CypressPage() {
