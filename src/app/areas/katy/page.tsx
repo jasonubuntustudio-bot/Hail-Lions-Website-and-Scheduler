@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Katy TX",
   description:
     "Mobile paintless dent repair in Katy, Texas. Hail damage and door dings fixed at your home or office. (281) 352-5434.",
+  alternates: { canonical: "/areas/katy" },
 };
 
 export default function KatyPage() {
