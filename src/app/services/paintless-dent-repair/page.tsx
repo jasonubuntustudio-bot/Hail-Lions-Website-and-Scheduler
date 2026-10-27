@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Houston",
   description:
     "Professional paintless dent repair (PDR) in Houston. No paint, no fillers. We come to you. 100% satisfaction guarantee and lifetime warranty.",
+  alternates: { canonical: "/services/paintless-dent-repair" },
 };
 
 export default function PaintlessDentRepairPage() {
