@@ -6,6 +6,7 @@ export const metadata = {
   title: "Paintless Dent Repair Pearland TX",
   description:
     "Mobile paintless dent repair in Pearland, Texas. Hail damage and door dings fixed at your location. Call (281) 352-5434.",
+  alternates: { canonical: "/areas/pearland" },
 };
 
 export default function PearlandPage() {
