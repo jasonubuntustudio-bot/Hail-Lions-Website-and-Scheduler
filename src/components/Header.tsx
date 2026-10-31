@@ -9,6 +9,7 @@ import { PHONE, PHONE_TEL } from "@/lib/utils";
 const NAV = [
   { href: "/services", label: "Services" },
   { href: "/areas", label: "Areas" },
+  { href: "/quote", label: "My Quote" },
   { href: "/about", label: "About" },
   { href: "/guarantee", label: "Guarantee" },
   { href: "/contact", label: "Contact" },
