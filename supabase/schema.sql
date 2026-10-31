@@ -165,3 +165,11 @@ create index if not exists customer_interactions_customer_idx
 alter table public.customers enable row level security;
 alter table public.customer_interactions enable row level security;
 -- Admin uses service role; no public policies on CRM tables
+
+-- E-sign repair authorization (quote accept)
+alter table public.bookings add column if not exists auth_signed_at timestamptz;
+alter table public.bookings add column if not exists auth_signer_name text;
+alter table public.bookings add column if not exists auth_storage_path text;
+alter table public.bookings add column if not exists insurance_company text;
+alter table public.bookings add column if not exists vehicle_color text;
+alter table public.bookings add column if not exists vin text;
