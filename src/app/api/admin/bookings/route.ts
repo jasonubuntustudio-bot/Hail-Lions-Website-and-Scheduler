@@ -62,7 +62,7 @@ export async function PATCH(req: NextRequest) {
   const { data: before, error: fetchErr } = await supabase
     .from("bookings")
     .select(
-      "id, phone, email, confirmation_code, full_name, status, customer_id, service_type"
+      "id, phone, email, confirmation_code, full_name, status, customer_id, service_type, vehicle_year, vehicle_make, vehicle_model"
     )
     .eq("id", id)
     .maybeSingle();
