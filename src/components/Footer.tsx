@@ -57,18 +57,29 @@ export default function Footer() {
             <p className="text-sm text-gray-500 mb-1">Jason Huddleston · Co-Owner</p>
             <p className="text-sm text-gray-600 mb-4">[Second Owner] · Co-Owner</p>
             <p className="text-sm text-gray-400 mb-4">Houston, TX & surrounding areas</p>
-            <Link
-              href="/book"
-              className="inline-block bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-4 py-2.5 rounded-lg text-sm transition min-h-[44px]"
-            >
-              Start with Photos
-            </Link>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link
+                href="/book"
+                className="inline-block bg-cyan-500 hover:bg-cyan-400 text-black font-semibold px-4 py-2.5 rounded-lg text-sm transition min-h-[44px] text-center"
+              >
+                Start with Photos
+              </Link>
+              <Link
+                href="/quote"
+                className="inline-block border border-gray-600 hover:border-cyan-500 text-gray-200 hover:text-cyan-400 font-semibold px-4 py-2.5 rounded-lg text-sm transition min-h-[44px] text-center"
+              >
+                Check my quote
+              </Link>
+            </div>
           </div>
         </div>
 
         <div className="border-t border-gray-800 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
           <span>© {new Date().getFullYear()} Hail Lions LLC. All rights reserved.</span>
           <div className="flex gap-4">
+            <Link href="/quote" className="hover:text-cyan-400">
+              My Quote
+            </Link>
             <Link href="/about" className="hover:text-cyan-400">
               About
             </Link>
