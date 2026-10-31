@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
     .from("bookings")
     .select("*")
     .order("created_at", { ascending: false })
-    .limit(100);
+    .limit(500);
 
   if (error) {
     return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
