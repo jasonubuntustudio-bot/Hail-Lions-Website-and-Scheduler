@@ -11,14 +11,22 @@ function publicBooking(row: Record<string, unknown>) {
     status: row.status,
     fullName: row.full_name,
     phone: row.phone,
+    email: row.email ?? null,
+    address: row.address ?? null,
     serviceType: row.service_type,
     vehicleYear: row.vehicle_year,
     vehicleMake: row.vehicle_make,
     vehicleModel: row.vehicle_model,
+    vehicleColor: row.vehicle_color ?? null,
+    vin: row.vin ?? null,
     quoteAmountCents: row.quote_amount_cents,
     quoteNotes: row.quote_notes,
     scheduledDate: row.scheduled_date,
     scheduledWindow: row.scheduled_window,
+    isInsurance: !!row.is_insurance,
+    claimNumber: row.claim_number ?? null,
+    insuranceCompany: row.insurance_company ?? null,
+    authSignedAt: row.auth_signed_at ?? null,
   };
 }
 
@@ -54,7 +62,7 @@ export async function GET(req: NextRequest) {
   const { data, error } = await supabase
     .from("bookings")
     .select(
-      "confirmation_code, status, full_name, phone, service_type, vehicle_year, vehicle_make, vehicle_model, quote_amount_cents, quote_notes, scheduled_date, scheduled_window"
+      "confirmation_code, status, full_name, phone, email, address, service_type, vehicle_year, vehicle_make, vehicle_model, vehicle_color, vin, quote_amount_cents, quote_notes, scheduled_date, scheduled_window, is_insurance, claim_number, insurance_company, auth_signed_at"
     )
     .eq("confirmation_code", code)
     .maybeSingle();
