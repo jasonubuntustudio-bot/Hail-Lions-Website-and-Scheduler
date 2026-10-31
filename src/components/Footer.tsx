@@ -55,7 +55,7 @@ export default function Footer() {
               </a>
             </p>
             <p className="text-sm text-gray-500 mb-1">Jason Huddleston · Co-Owner</p>
-            <p className="text-sm text-gray-600 mb-4">[Second Owner] · Co-Owner</p>
+            <p className="text-sm text-gray-500 mb-4">Derrick Fraser · Co-Owner</p>
             <p className="text-sm text-gray-400 mb-4">Houston, TX & surrounding areas</p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link
