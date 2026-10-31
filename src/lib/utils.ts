@@ -14,10 +14,8 @@ export const TAGLINE = "The King of Dent Repair";
 export const OWNER_1_NAME = "Jason Huddleston";
 export const OWNER_1_TITLE = "CEO / Co-Owner";
 
-/**
- * Second owner — replace placeholders when ready.
- */
-export const OWNER_2_NAME = "[Second Owner Name]";
+/** Co-owner */
+export const OWNER_2_NAME = "Derrick Fraser";
 export const OWNER_2_TITLE = "Co-Owner";
-export const OWNER_2_PHONE = ""; // optional, e.g. "(281) 555-0000"
-export const OWNER_2_PHONE_TEL = ""; // e.g. "+12815550000"
+export const OWNER_2_PHONE = "(346) 216-6384";
+export const OWNER_2_PHONE_TEL = "+13462166384";
