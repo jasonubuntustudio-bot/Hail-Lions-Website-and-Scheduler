@@ -65,6 +65,13 @@ export default function Header() {
             <Phone size={22} />
           </a>
           <Link
+            href="/quote"
+            className="flex border border-gray-600 hover:border-cyan-500 text-gray-200 hover:text-cyan-400 font-semibold px-2.5 sm:px-3 py-2.5 rounded-lg transition text-sm min-h-[44px] items-center"
+            onClick={() => setOpen(false)}
+          >
+            Check quote
+          </Link>
+          <Link
             href="/book"
             className="bg-cyan-500 hover:bg-cyan-400 active:bg-cyan-300 text-black font-semibold px-3 sm:px-4 py-2.5 rounded-lg transition text-sm min-h-[44px] flex items-center"
             onClick={() => setOpen(false)}
@@ -104,6 +111,13 @@ export default function Header() {
               <Phone size={18} />
               {PHONE}
             </a>
+            <Link
+              href="/quote"
+              className="mt-2 border border-gray-600 text-gray-100 font-bold text-center py-3.5 rounded-xl active:bg-gray-900"
+              onClick={() => setOpen(false)}
+            >
+              Check quote
+            </Link>
             <Link
               href="/book"
               className="mt-2 bg-cyan-500 text-black font-bold text-center py-3.5 rounded-xl active:bg-cyan-400"
