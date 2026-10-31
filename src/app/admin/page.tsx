@@ -267,13 +267,15 @@ export default function AdminPage() {
   };
 
   const sendQuote = async (id: string) => {
-    const dollars = Number(quoteDollars);
-    if (!dollars || dollars <= 0) {
-      setError("Enter a quote amount");
+    const raw = String(quoteDollars).replace(/[$,\s]/g, "").trim();
+    const dollars = parseFloat(raw);
+    if (!Number.isFinite(dollars) || dollars <= 0) {
+      setError("Enter a valid quote amount greater than $0");
       return;
     }
     setSaving(true);
     setError("");
+    setMessage("");
     try {
       const res = await fetch("/api/admin/bookings", {
         method: "PATCH",
@@ -293,8 +295,15 @@ export default function AdminPage() {
         setError(data.error || "Failed to send quote");
         return;
       }
+      setMessage(
+        data.message ||
+          (data.quoteUrl
+            ? `Quote saved. Link: ${data.quoteUrl}`
+            : "Quote saved.")
+      );
       await load(password);
       setSection("quoted");
+      setExpanded(null);
     } finally {
       setSaving(false);
     }
@@ -599,81 +608,113 @@ export default function AdminPage() {
               </button>
 
               {expanded === b.id && (
-                <div className="border-t border-gray-800 bg-black/40 p-4">
-                  <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
-                    Customer photos (staff only)
-                  </p>
-                  {photosLoading ? (
-                    <p className="text-sm text-gray-500">Loading photos…</p>
-                  ) : photos.length === 0 ? (
-                    <p className="text-sm text-gray-500">
-                      No photos stored (or demo mode).
-                    </p>
-                  ) : (
-                    <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-                      {photos.map((p) => (
-                        <a
-                          key={p.id}
-                          href={p.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="relative aspect-square overflow-hidden rounded-lg border border-gray-700"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={p.url}
-                            alt="Customer damage photo"
-                            className="h-full w-full object-cover"
-                          />
-                        </a>
-                      ))}
-                    </div>
-                  )}
-
-                  {b.notes && (
-                    <p className="mb-3 text-sm text-gray-400">Notes: {b.notes}</p>
-                  )}
-
-                  {["quote_requested", "new", "quoted"].includes(b.status) && (
-                    <div className="mb-3 space-y-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3">
-                      <p className="text-sm font-medium text-cyan-300">
-                        Send quote to customer
+                <div className="border-t border-gray-800 bg-black/40 p-4 space-y-4">
+                  {/* Job detail grid */}
+                  <div className="grid gap-3 sm:grid-cols-2 text-sm">
+                    <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-3 space-y-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                        Customer
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <input
-                          type="number"
-                          min="1"
-                          step="0.01"
-                          placeholder="Amount $"
-                          value={quoteDollars}
-                          onChange={(e) => setQuoteDollars(e.target.value)}
-                          className="w-32 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
-                        />
-                        <input
-                          placeholder="Quote notes (optional)"
-                          value={quoteNotes}
-                          onChange={(e) => setQuoteNotes(e.target.value)}
-                          className="min-w-[12rem] flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        disabled={saving}
-                        onClick={() => sendQuote(b.id)}
-                        className="rounded-lg bg-cyan-500 px-4 py-2 text-sm font-bold text-black disabled:opacity-40"
-                      >
-                        {saving ? "Sending…" : "Send quote + alert customer"}
-                      </button>
+                      <p className="font-medium text-white">{b.full_name}</p>
+                      <p>
+                        <a href={`tel:${b.phone}`} className="text-cyan-400 hover:underline">
+                          {b.phone}
+                        </a>
+                      </p>
+                      {b.email && (
+                        <p>
+                          <a
+                            href={`mailto:${b.email}`}
+                            className="text-gray-300 hover:underline break-all"
+                          >
+                            {b.email}
+                          </a>
+                        </p>
+                      )}
+                      {(b.address || b.city) && (
+                        <p className="text-gray-400 text-xs">
+                          {[b.address, b.city].filter(Boolean).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                    <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-3 space-y-1.5">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-500">
+                        Vehicle & job
+                      </p>
+                      <p className="text-white">
+                        {[b.vehicle_year, b.vehicle_make, b.vehicle_model]
+                          .filter(Boolean)
+                          .join(" ") || "—"}
+                      </p>
+                      <p className="text-gray-400">
+                        {serviceLabel(b.service_type || "")}
+                      </p>
+                      <p className="text-gray-400">
+                        Status:{" "}
+                        <span className="text-white">{statusLabel(b.status)}</span>
+                        {isQuoteLost(b) && (
+                          <span className="text-amber-400"> · 30d+ no accept</span>
+                        )}
+                      </p>
+                      {b.is_insurance && (
+                        <p className="text-amber-200/90 text-xs">
+                          Insurance job
+                          {b.claim_number ? ` · Claim ${b.claim_number}` : ""}
+                        </p>
+                      )}
+                      {b.confirmation_code && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <span className="font-mono text-xs text-cyan-300">
+                            {b.confirmation_code}
+                          </span>
+                          <button
+                            type="button"
+                            className="rounded border border-gray-600 px-2 py-0.5 text-[10px] text-gray-300 hover:border-cyan-500"
+                            onClick={() => {
+                              const site =
+                                typeof window !== "undefined"
+                                  ? window.location.origin
+                                  : "";
+                              const url = `${site}/quote/${b.confirmation_code}`;
+                              navigator.clipboard?.writeText(url);
+                              setMessage(`Copied: ${url}`);
+                            }}
+                          >
+                            Copy quote link
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {(b.quote_amount_cents != null || b.quote_notes) && (
+                    <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-3 text-sm">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-cyan-400/80">
+                        Quote
+                      </p>
+                      {b.quote_amount_cents != null && (
+                        <p className="text-xl font-bold text-cyan-300">
+                          {formatMoney(b.quote_amount_cents)}
+                        </p>
+                      )}
+                      {b.quoted_at && (
+                        <p className="text-xs text-gray-500">
+                          Sent {new Date(b.quoted_at).toLocaleString()}
+                        </p>
+                      )}
+                      {b.quote_notes && (
+                        <p className="mt-1 text-gray-300">{b.quote_notes}</p>
+                      )}
                     </div>
                   )}
 
                   {b.scheduled_date && (
-                    <p className="mb-3 text-sm text-emerald-300">
-                      Scheduled:{" "}
+                    <p className="text-sm text-emerald-300">
+                      Appointment:{" "}
                       {new Date(b.scheduled_date + "T12:00:00").toLocaleDateString(
                         "en-US",
                         {
-                          weekday: "short",
+                          weekday: "long",
                           month: "short",
                           day: "numeric",
                           year: "numeric",
@@ -683,7 +724,89 @@ export default function AdminPage() {
                     </p>
                   )}
 
-                  {/* Status actions */}
+                  {b.notes && (
+                    <p className="text-sm text-gray-400">
+                      <span className="text-gray-500">Customer notes:</span> {b.notes}
+                    </p>
+                  )}
+
+                  <div>
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">
+                      Customer photos (staff only)
+                    </p>
+                    {photosLoading ? (
+                      <p className="text-sm text-gray-500">Loading photos…</p>
+                    ) : photos.length === 0 ? (
+                      <p className="text-sm text-gray-500">
+                        No photos stored for this job.
+                      </p>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                        {photos.map((p) => (
+                          <a
+                            key={p.id}
+                            href={p.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="relative aspect-square overflow-hidden rounded-lg border border-gray-700"
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={p.url}
+                              alt="Customer damage photo"
+                              className="h-full w-full object-cover"
+                            />
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {["quote_requested", "new", "quoted"].includes(b.status) && (
+                    <div className="space-y-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
+                      <p className="text-sm font-medium text-cyan-200">
+                        {b.status === "quoted" ? "Update / resend quote" : "Send quote"}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <div className="relative">
+                          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                            $
+                          </span>
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="450.00"
+                            value={quoteDollars}
+                            onChange={(e) => setQuoteDollars(e.target.value)}
+                            className="w-36 rounded-lg border border-gray-700 bg-gray-900 py-2 pl-7 pr-3 text-white"
+                          />
+                        </div>
+                        <input
+                          placeholder="Notes to customer (optional)"
+                          value={quoteNotes}
+                          onChange={(e) => setQuoteNotes(e.target.value)}
+                          className="min-w-[12rem] flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={saving}
+                        onClick={() => sendQuote(b.id)}
+                        className="rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-bold text-black disabled:opacity-40"
+                      >
+                        {saving
+                          ? "Saving…"
+                          : b.status === "quoted"
+                            ? "Update quote & notify"
+                            : "Send quote & notify"}
+                      </button>
+                      <p className="text-[11px] text-gray-500">
+                        Saves the amount, sets status to Quoted, and texts/emails the
+                        customer when Twilio/Resend are configured.
+                      </p>
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2">
                     {["scheduled", "in_progress", "quote_approved"].includes(
                       b.status
@@ -732,6 +855,7 @@ export default function AdminPage() {
                   </div>
                 </div>
               )}
+
             </div>
           ))}
         </div>
