@@ -150,6 +150,14 @@ export async function PATCH(req: NextRequest) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       "https://hail-lions-website-and-scheduler.vercel.app";
     const quoteUrl = `${site.replace(/\/$/, "")}/quote/${after.confirmation_code}`;
+    const vehicleSummary = [
+      before.vehicle_year,
+      before.vehicle_make,
+      before.vehicle_model,
+    ]
+      .filter(Boolean)
+      .join(" ");
+
     const tpl = quoteReminderTemplates({
       customerName: after.full_name || before.full_name || "there",
       quoteAmountCents: cents,
@@ -158,6 +166,7 @@ export async function PATCH(req: NextRequest) {
       quoteNotes: (after.quote_notes as string) || null,
       quoteUrl,
       dayNumber: 1,
+      vehicleSummary: vehicleSummary || null,
     });
 
     try {
