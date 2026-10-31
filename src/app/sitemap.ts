@@ -7,6 +7,7 @@ const site =
 const staticRoutes: { path: string; changeFrequency: MetadataRoute.Sitemap[0]["changeFrequency"]; priority: number }[] = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
   { path: "/book", changeFrequency: "weekly", priority: 0.95 },
+  { path: "/quote", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services", changeFrequency: "monthly", priority: 0.9 },
   { path: "/services/paintless-dent-repair", changeFrequency: "monthly", priority: 0.85 },
   { path: "/services/hail-damage-repair", changeFrequency: "monthly", priority: 0.85 },
