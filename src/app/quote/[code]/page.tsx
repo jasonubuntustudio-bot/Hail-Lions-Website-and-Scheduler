@@ -15,21 +15,30 @@ import {
   formatTimeLabel,
   type Slot,
 } from "@/components/SlotCalendar";
-import { Check, Calendar } from "lucide-react";
+import AuthorizeAndAccept from "@/components/AuthorizeAndAccept";
+import { Calendar } from "lucide-react";
 
 type Booking = {
   confirmationCode: string;
   status: string;
   fullName: string;
   phone: string;
+  email?: string | null;
+  address?: string | null;
   serviceType: string | null;
   vehicleYear: string | null;
   vehicleMake: string | null;
   vehicleModel: string | null;
+  vehicleColor?: string | null;
+  vin?: string | null;
   quoteAmountCents: number | null;
   quoteNotes: string | null;
   scheduledDate: string | null;
   scheduledWindow: string | null;
+  isInsurance?: boolean;
+  claimNumber?: string | null;
+  insuranceCompany?: string | null;
+  authSignedAt?: string | null;
 };
 
 export default function QuoteStatusPage() {
@@ -220,15 +229,27 @@ export default function QuoteStatusPage() {
 
       {booking.status === "quoted" && (
         <div className="mb-6 space-y-3">
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => act("approve")}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 py-3.5 font-bold text-black"
-          >
-            <Check size={20} />
-            Accept quote & choose time
-          </button>
+          <AuthorizeAndAccept
+            code={code}
+            fullName={booking.fullName}
+            phone={booking.phone}
+            vehicleYear={booking.vehicleYear}
+            vehicleMake={booking.vehicleMake}
+            vehicleModel={booking.vehicleModel}
+            quoteAmountCents={booking.quoteAmountCents}
+            isInsurance={booking.isInsurance}
+            claimNumber={booking.claimNumber}
+            insuranceCompany={booking.insuranceCompany}
+            onDone={async () => {
+              setBanner(
+                "Authorization signed & quote accepted — pick a day and time."
+              );
+              await loadSlots();
+              await load();
+            }}
+            onError={setError}
+          />
+          {error && <p className="text-sm text-red-400">{error}</p>}
           <button
             type="button"
             disabled={busy}
