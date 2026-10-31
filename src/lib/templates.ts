@@ -31,62 +31,116 @@ function techLine(name?: string | null, phone?: string | null) {
   return `${techName} (${techPhone})`;
 }
 
-/** Daily quote-acceptance reminders (day 1–3 after quote sent, or until accepted) */
+/**
+ * Customer estimate / quote message — matches Hail Lions
+ * “Customer Estimate & Appointment Template.”
+ * Auto-fills name, amount (or optional low–high range), and ACCEPT URL.
+ */
 export function quoteReminderTemplates(vars: {
   customerName: string;
   quoteAmountCents: number;
+  /** Optional upper bound for a range quote; omit for a single amount */
+  quoteHighCents?: number | null;
   confirmationCode: string;
   serviceType?: string | null;
   quoteNotes?: string | null;
   quoteUrl: string;
   dayNumber: 1 | 2 | 3;
+  vehicleSummary?: string | null;
 }) {
+  const fullName = vars.customerName.trim() || "there";
   const name = firstName(vars.customerName);
-  const amount = formatMoney(vars.quoteAmountCents);
+  const low = formatMoney(vars.quoteAmountCents);
+  const hasRange =
+    vars.quoteHighCents != null &&
+    vars.quoteHighCents > vars.quoteAmountCents;
+  const high = hasRange ? formatMoney(vars.quoteHighCents!) : null;
+  const amountPhrase = hasRange
+    ? `between ${low} and ${high}`
+    : low;
   const service =
     serviceLabel(vars.serviceType || "") || "paintless dent repair";
+  const vehicle = vars.vehicleSummary?.trim();
   const day = vars.dayNumber;
+  const acceptUrl = vars.quoteUrl;
 
-  const sms = [
-    `Hi ${name}, your ${BUSINESS_NAME} quote for ${service} is ${amount}. Accept & pick a time: ${vars.quoteUrl} — Code ${vars.confirmationCode}`,
-    `Hi ${name}, friendly reminder: your ${BUSINESS_NAME} quote (${amount}) is still open. Accept here: ${vars.quoteUrl} — Code ${vars.confirmationCode}`,
-    `Hi ${name}, last reminder: your ${BUSINESS_NAME} quote for ${amount} expires after today. Accept & schedule: ${vars.quoteUrl} — Code ${vars.confirmationCode}`,
-  ][day - 1];
+  const notesBlock = vars.quoteNotes?.trim()
+    ? `\n\nNotes from our team:\n${vars.quoteNotes.trim()}`
+    : "";
 
-  const emailSubject = [
-    `Your ${BUSINESS_NAME} quote is ready (${amount})`,
-    `Reminder: your ${BUSINESS_NAME} quote (${amount})`,
-    `Final reminder: ${BUSINESS_NAME} quote ${amount}`,
-  ][day - 1];
+  const vehicleLine = vehicle ? `\nVehicle: ${vehicle}` : "";
 
-  const notesLine = vars.quoteNotes?.trim()
-    ? `\n\nNotes from our team:\n${vars.quoteNotes.trim()}\n`
-    : "\n";
+  // --- Day 1: primary estimate (template style) ---
+  const emailBodyDay1 = `Good day, ${fullName}!
 
-  const intro =
-    day === 1
-      ? "Thanks for sending your vehicle photos. We've reviewed the damage and prepared your quote."
-      : day === 2
-        ? "Just a friendly reminder that your quote is still available."
-        : "This is your final reminder — your quote will expire after today unless you accept.";
+This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
 
-  const emailBody = `Hi ${name},
+First, I'd like to thank you for considering ${BUSINESS_NAME} for your vehicle repairs. We appreciate the opportunity to earn your business!
 
-${intro}
+Based on the information provided, your estimated repair cost is ${amountPhrase}.${vehicleLine}
 
 Service: ${service}
-Quote amount: ${amount}
-Confirmation code: ${vars.confirmationCode}
-${notesLine}
-Accept your quote and choose an appointment time here:
-${vars.quoteUrl}
+Confirmation code: ${vars.confirmationCode}${notesBlock}
 
-Questions? Call us at ${PHONE}.
+If you'd like to move forward with your repairs, simply open the link below to ACCEPT your quote. From there, you can select the appointment date and time that are most convenient for you.
 
-Thank you,
+ACCEPT & schedule:
+${acceptUrl}
+
+We look forward to taking care of your vehicle!
+
 ${OWNER_1_NAME}
 ${BUSINESS_NAME}
 ${PHONE}`;
+
+  const emailBodyDay2 = `Good day, ${name}!
+
+This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
+
+Just a friendly reminder that your estimate of ${amountPhrase} is still available.
+
+Confirmation code: ${vars.confirmationCode}
+
+To ACCEPT your quote and choose an appointment time, please use this link:
+${acceptUrl}
+
+We look forward to taking care of your vehicle!
+
+${OWNER_1_NAME}
+${BUSINESS_NAME}
+${PHONE}`;
+
+  const emailBodyDay3 = `Good day, ${name}!
+
+This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
+
+This is a final reminder regarding your ${BUSINESS_NAME} estimate of ${amountPhrase}. After today, this quote may no longer be held without an update from our team.
+
+Confirmation code: ${vars.confirmationCode}
+
+If you'd like to move forward, please ACCEPT and schedule here:
+${acceptUrl}
+
+Thank you again for considering ${BUSINESS_NAME}.
+
+${OWNER_1_NAME}
+${BUSINESS_NAME}
+${PHONE}`;
+
+  const emailBody = [emailBodyDay1, emailBodyDay2, emailBodyDay3][day - 1];
+
+  const emailSubject = [
+    `Your ${BUSINESS_NAME} estimate — ${hasRange ? `${low}–${high}` : low}`,
+    `Reminder: your ${BUSINESS_NAME} estimate (${hasRange ? `${low}–${high}` : low})`,
+    `Final reminder: ${BUSINESS_NAME} estimate ${hasRange ? `${low}–${high}` : low}`,
+  ][day - 1];
+
+  // SMS stays short; same facts as the template
+  const sms = [
+    `Good day, ${name}! Jason with ${BUSINESS_NAME}. Your estimated repair cost is ${amountPhrase}. ACCEPT & schedule: ${acceptUrl} — Code ${vars.confirmationCode}`,
+    `Hi ${name}, reminder from ${BUSINESS_NAME}: your estimate (${amountPhrase}) is still open. ACCEPT: ${acceptUrl} — ${vars.confirmationCode}`,
+    `Hi ${name}, final reminder: ${BUSINESS_NAME} estimate ${amountPhrase}. ACCEPT & schedule today: ${acceptUrl} — ${vars.confirmationCode}`,
+  ][day - 1];
 
   return { sms, emailSubject, emailBody };
 }
