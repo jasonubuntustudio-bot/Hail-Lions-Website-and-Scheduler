@@ -55,16 +55,15 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="bg-gray-900 border border-dashed border-gray-700 rounded-2xl p-6">
-          <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center mb-4">
-            <User className="text-gray-500" size={24} />
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6">
+          <div className="w-12 h-12 rounded-full bg-cyan-500/20 flex items-center justify-center mb-4">
+            <User className="text-cyan-400" size={24} />
           </div>
           <h3 className="text-lg font-semibold text-white">{OWNER_2_NAME}</h3>
           <p className="text-gray-500 text-sm mb-3">{OWNER_2_TITLE}</p>
-          <p className="text-gray-500 text-sm leading-relaxed">
-            Placeholder for second owner bio. Replace name and details in{" "}
-            <code className="text-xs text-gray-400">src/lib/utils.ts</code> when
-            ready.
+          <p className="text-gray-400 text-sm leading-relaxed">
+            Co-owner of Hail Lions, working alongside the team to deliver
+            quality paintless dent repair across the greater Houston area.
           </p>
         </div>
       </div>
