@@ -1,9 +1,10 @@
 import Link from "next/link";
+import { Camera, Check } from "lucide-react";
 
 export const metadata = {
-  title: "Services",
+  title: "Paintless Dent Repair Services Houston | Hail, Mobile & Classic PDR",
   description:
-    "Paintless dent repair, hail damage, mobile service, classic car PDR — Hail Lions Houston.",
+    "Hail Lions services: paintless dent repair, hail damage repair, mobile PDR, and classic car dent repair in Houston and surrounding areas. Photo estimates.",
   alternates: { canonical: "/services" },
 };
 
@@ -11,59 +12,90 @@ const SERVICES = [
   {
     href: "/services/paintless-dent-repair",
     title: "Paintless Dent Repair",
-    desc: "Remove dings and dents without paint, fillers, or sanding. Factory finish preserved.",
+    keyword: "PDR Houston",
+    desc: "Door dings, creases, and soft dents removed without paint or fillers. Factory finish preserved with a lifetime warranty.",
   },
   {
     href: "/services/hail-damage-repair",
     title: "Hail Damage Repair",
-    desc: "Restore hail-damaged panels with precision PDR. Insurance-friendly process.",
+    keyword: "Hail repair Houston",
+    desc: "Storm hail on hoods, roofs, and doors restored with precision PDR. Insurance-friendly estimates and mobile service.",
   },
   {
     href: "/services/mobile-dent-repair",
     title: "Mobile Dent Repair",
-    desc: "We come to your home, office, or dealership across greater Houston.",
+    keyword: "Mobile PDR",
+    desc: "We come to your home, office, or workplace across greater Houston. No shop drop-off for most qualifying jobs.",
   },
   {
     href: "/services/classic-car-pdr",
     title: "Classic Car PDR",
-    desc: "Special care for classic and vintage vehicles. Preserve original paint and value.",
+    keyword: "Classic car dent repair",
+    desc: "Careful paintless repair for vintage and collector vehicles. Protect original paint and value.",
   },
 ];
 
 export default function ServicesPage() {
   return (
-    <div className="max-w-6xl mx-auto px-4 py-16">
-      <h1 className="text-4xl font-bold text-white mb-4 text-center">
-        Our Services
+    <div className="mx-auto max-w-6xl px-4 py-16">
+      <h1 className="mb-4 text-center text-3xl font-bold text-white sm:text-4xl">
+        Paintless Dent Repair Services in Houston
       </h1>
-      <p className="text-gray-400 text-center max-w-2xl mx-auto mb-12">
-        Specialized paintless dent repair for Houston and surrounding areas.
-        Every job includes our satisfaction guarantee and lifetime warranty.
+      <p className="mx-auto mb-6 max-w-2xl text-center text-gray-400">
+        Hail Lions specializes in mobile paintless dent repair (PDR) for greater
+        Houston — hail damage, door dings, creases, and classic cars. Every job
+        includes our satisfaction guarantee and lifetime warranty.
+      </p>
+      <p className="mx-auto mb-12 max-w-2xl text-center text-sm text-gray-500">
+        Start with photos for a clear estimate, accept online, then choose a time.
+        We meet you at a location that works for your schedule.
       </p>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="mb-12 grid gap-6 md:grid-cols-2">
         {SERVICES.map((s) => (
           <Link
             key={s.href}
             href={s.href}
-            className="bg-gray-900 border border-gray-800 hover:border-cyan-500/50 rounded-2xl p-6 transition block"
+            className="block rounded-2xl border border-gray-800 bg-gray-900 p-6 transition hover:border-cyan-500/50"
           >
-            <h2 className="text-xl font-semibold text-white mb-2">{s.title}</h2>
-            <p className="text-gray-400 text-sm">{s.desc}</p>
-            <span className="inline-block mt-4 text-cyan-400 text-sm font-medium">
+            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-cyan-500/80">
+              {s.keyword}
+            </p>
+            <h2 className="mb-2 text-xl font-semibold text-white">{s.title}</h2>
+            <p className="text-sm text-gray-400">{s.desc}</p>
+            <span className="mt-4 inline-block text-sm font-medium text-cyan-400">
               Learn more →
             </span>
           </Link>
         ))}
       </div>
 
-      <div className="text-center mt-12">
-        <Link
-          href="/book"
-          className="inline-flex bg-cyan-500 hover:bg-cyan-400 text-black font-bold px-8 py-3 rounded-xl transition"
-        >
-          Start with Photos
-        </Link>
+      <div className="mx-auto max-w-2xl rounded-2xl border border-gray-800 bg-gray-950/80 p-6">
+        <h2 className="mb-3 text-lg font-semibold text-white">
+          Why Houston drivers choose PDR
+        </h2>
+        <ul className="mb-6 space-y-2 text-sm text-gray-400">
+          {[
+            "No unnecessary repaint when metal and paint allow paintless methods",
+            "Often faster than traditional body shop timelines for qualifying damage",
+            "Mobile service across Katy, Cypress, The Woodlands, Baytown, and more",
+            "Photo-first quoting so you know the plan before we arrive",
+          ].map((item) => (
+            <li key={item} className="flex items-start gap-2">
+              <Check className="mt-0.5 shrink-0 text-cyan-400" size={16} />
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="text-center">
+          <Link
+            href="/book"
+            className="inline-flex items-center gap-2 rounded-xl bg-cyan-500 px-8 py-3 font-bold text-black transition hover:bg-cyan-400"
+          >
+            <Camera size={18} />
+            Start with Photos
+          </Link>
+        </div>
       </div>
     </div>
   );
