@@ -3,9 +3,9 @@ import { Camera, Phone, Check } from "lucide-react";
 import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
 
 export const metadata = {
-  title: "Paintless Dent Repair Houston TX | Mobile PDR Specialists",
+  title: "Paintless Dent Repair Houston | Paintless Dent Removal | Auto Dent Repair",
   description:
-    "Paintless dent repair in Houston. Mobile PDR for door dings, creases, and hail. Keep factory paint. Photo quotes. Call (281) 352-5434.",
+    "Paintless dent repair Houston and paintless dent removal Houston. Auto dent repair and auto hail damage repair — mobile, insurance approved support. (281) 352-5434.",
   alternates: { canonical: "/services/paintless-dent-repair" },
 };
 
@@ -16,25 +16,30 @@ export default function PaintlessDentRepairPage() {
         Service
       </p>
       <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">
-        Paintless Dent Repair (PDR) in Houston
+        Paintless Dent Repair Houston
       </h1>
       <p className="mb-8 text-xl text-cyan-400">
-        Factory-finish dents fixed without paint or body filler
+        Paintless dent removal Houston · Auto dent repair without paint or filler
       </p>
 
       <div className="space-y-6 leading-relaxed text-gray-300">
         <p>
-          <strong className="text-white">Paintless dent repair</strong> uses
-          specialized rods, tips, and glue-pull systems to gently work metal
-          back toward its original contour. When the paint surface is unbroken,
-          PDR can remove door dings, many creases, and hail marks without
-          sanding or repainting.
+          <strong className="text-white">Paintless dent repair Houston</strong>{" "}
+          drivers trust uses specialized rods, tips, and glue-pull systems to
+          work metal back toward its original contour. When the paint surface is
+          unbroken, <strong className="text-white">paintless dent removal Houston</strong>{" "}
+          can fix door dings, many creases, and hail marks without sanding or
+          repainting.
         </p>
         <p>
-          {BUSINESS_NAME} brings mobile PDR to you across greater Houston—Katy,
-          Cypress, The Woodlands, Baytown, Spring, Sugar Land, and more. Send
-          photos for an estimate, accept online, and schedule a time that fits
-          your day.
+          {BUSINESS_NAME} provides mobile{" "}
+          <strong className="text-white">auto dent repair</strong> and{" "}
+          <strong className="text-white">auto hail damage repair</strong> across
+          greater Houston—Katy, Cypress, The Woodlands, Baytown, Spring, Sugar
+          Land, and more. We support an{" "}
+          <strong className="text-white">insurance approved</strong> process with
+          clear photo estimates. Send photos, accept online, and schedule a time
+          that fits your day.
         </p>
 
         <h2 className="pt-2 text-2xl font-semibold text-white">
