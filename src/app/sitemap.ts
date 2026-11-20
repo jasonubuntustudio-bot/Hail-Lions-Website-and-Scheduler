@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { AREAS } from "@/lib/area-content";
-import { AREA_TOPIC_SLUGS } from "@/lib/area-topics";
 
 const site =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -35,13 +34,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: area.slug === "houston" ? 0.85 : 0.8,
     });
-    for (const topic of AREA_TOPIC_SLUGS) {
-      routes.push({
-        path: `/areas/${area.slug}/${topic}`,
-        changeFrequency: "monthly",
-        priority: 0.75,
-      });
-    }
   }
 
   return routes.map(({ path, changeFrequency, priority }) => ({
