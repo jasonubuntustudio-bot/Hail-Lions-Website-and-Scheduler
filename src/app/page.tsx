@@ -7,23 +7,24 @@ import { PHONE } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: {
-    absolute: "Hail Lions | Mobile Paintless Dent Repair Houston",
+    absolute:
+      "Paintless Dent Repair Houston | Auto Hail Damage Repair | Hail Lions",
   },
   description:
-    "Houston's mobile paintless dent repair specialists. Hail damage, door dings, creases — we come to you. 100% satisfaction guarantee. Lifetime warranty. Call " +
+    "Paintless dent repair Houston, paintless dent removal Houston, and auto dent repair. Mobile auto hail damage repair — insurance approved process support. Call " +
     PHONE,
   alternates: {
     canonical: "/",
   },
   openGraph: {
-    title: "Hail Lions — The King of Dent Repair",
+    title: "Paintless Dent Repair Houston | Hail Lions",
     description:
-      "Mobile paintless dent repair across greater Houston. Start with photos for a fast estimate.",
+      "Mobile paintless dent repair and auto hail damage repair across greater Houston. Photo estimates. Insurance approved support.",
     url: "/",
     images: [
       {
         url: "/images/hero.webp",
-        alt: "Hail Lions mobile paintless dent repair Houston",
+        alt: "Paintless dent repair Houston — Hail Lions mobile PDR",
       },
     ],
   },
