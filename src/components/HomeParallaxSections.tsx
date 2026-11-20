@@ -50,12 +50,13 @@ export default function HomeParallaxSections() {
           style={{ transform: `translate3d(0, ${headingGallery.y}px, 0)` }}
         >
           <h2 className="mb-3 text-3xl font-bold text-white sm:text-4xl">
-            Results that look factory
+            Paintless dent repair Houston — factory-look results
           </h2>
-          <p className="mx-auto max-w-xl text-gray-400">
-            Paintless dent repair keeps your original finish. Send your own
-            photos for a fast estimate — or replace these with your real job
-            photos anytime.
+          <p className="mx-auto max-w-2xl text-gray-400">
+            Hail Lions specializes in paintless dent repair Houston drivers trust:
+            paintless dent removal Houston locals use for door dings, and
+            professional dent repair Houston without unnecessary paint or filler.
+            Send photos for a fast estimate.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
@@ -94,8 +95,13 @@ export default function HomeParallaxSections() {
             style={{ transform: `translate3d(0, ${headingServices.y}px, 0)` }}
           >
             <h2 className="text-3xl font-bold text-white sm:text-4xl">
-              What we fix
+              Auto dent repair & auto hail damage repair
             </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-gray-400">
+              From parking-lot dings to storm hail — mobile service across
+              greater Houston with insurance approved documentation when you
+              file a claim.
+            </p>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
             {IMAGES.services.map((s, i) => (
@@ -135,27 +141,50 @@ export default function HomeParallaxSections() {
           className="mb-10 text-center will-change-transform"
           style={{ transform: `translate3d(0, ${headingWhy.y}px, 0)` }}
         >
-          <h2 className="text-3xl font-bold text-white">Why Hail Lions?</h2>
+          <h2 className="text-3xl font-bold text-white">
+            Why Hail Lions for dent repair Houston?
+          </h2>
         </div>
         <div className="grid gap-5 md:grid-cols-3">
           <FeatureCard
             icon={Truck}
             title="Fully Mobile"
-            body="We come to your home, work, or dealership. No shop drop-off required."
+            body="Paintless dent removal Houston-wide at your home, work, or dealership. No shop drop-off for most jobs."
             factor={0.2}
           />
           <FeatureCard
             icon={Shield}
-            title="100% Guarantee"
-            body="Not happy? You don't pay. Lifetime warranty for as long as you own the vehicle."
+            title="Insurance approved support"
+            body="Clear estimates and documentation for auto hail damage repair claims. Guarantee + lifetime warranty on our work."
             factor={0.28}
           />
           <FeatureCard
             icon={Camera}
             title="Photo-first quotes"
-            body="Send clear photos, get a fast estimate, pick a time — we handle the rest."
+            body="Send photos, get a fast auto dent repair estimate, accept online, and pick a time that works."
             factor={0.24}
           />
+        </div>
+        <div className="mx-auto mt-12 max-w-3xl space-y-4 text-center text-gray-400 leading-relaxed">
+          <p>
+            <strong className="text-white">Paintless dent repair Houston</strong>{" "}
+            is our core service: we restore metal without sanding or repainting
+            when the factory paint is intact. That same approach powers{" "}
+            <strong className="text-white">paintless dent removal Houston</strong>{" "}
+            customers request after door dings and shopping-cart marks.
+          </p>
+          <p>
+            Need broader <strong className="text-white">dent repair Houston</strong>{" "}
+            help or full-panel{" "}
+            <strong className="text-white">auto hail damage repair</strong>? We
+            assess from your photos, explain what PDR can and cannot do, and
+            support an <strong className="text-white">insurance approved</strong>{" "}
+            workflow when your carrier covers the loss.
+          </p>
+          <p className="text-sm text-gray-500">
+            Serving Houston, Baytown, Katy, Cypress, The Woodlands, Spring, and
+            surrounding cities with mobile auto dent repair.
+          </p>
         </div>
       </section>
     </>
