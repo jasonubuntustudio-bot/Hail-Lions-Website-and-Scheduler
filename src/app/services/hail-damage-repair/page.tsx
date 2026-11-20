@@ -3,9 +3,9 @@ import { Camera, Phone, Check } from "lucide-react";
 import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
 
 export const metadata = {
-  title: "Hail Damage Repair Houston TX | Mobile Paintless Dent Repair",
+  title: "Auto Hail Damage Repair Houston | Paintless Dent Repair | Hail Lions",
   description:
-    "Mobile hail damage repair in Houston and surrounding areas. Paintless dent repair restores factory paint. Photo estimates, insurance-friendly. (281) 352-5434.",
+    "Auto hail damage repair Houston with mobile paintless dent repair and paintless dent removal. Insurance approved process support. Dent repair Houston. (281) 352-5434.",
   alternates: { canonical: "/services/hail-damage-repair" },
 };
 
@@ -16,23 +16,29 @@ export default function HailDamageRepairPage() {
         Service
       </p>
       <h1 className="mb-3 text-3xl font-bold text-white sm:text-4xl">
-        Hail Damage Repair in Houston, TX
+        Auto Hail Damage Repair Houston
       </h1>
       <p className="mb-8 text-xl text-cyan-400">
-        Mobile paintless dent repair after Texas hail storms
+        Mobile paintless dent repair & paintless dent removal after Texas storms
       </p>
 
       <div className="space-y-6 leading-relaxed text-gray-300">
         <p>
           Greater Houston sits in a high hail-risk region. After a storm, hoods,
           roofs, trunks, and doors can carry dozens or hundreds of small dents.
-          <strong className="text-white"> Paintless dent repair (PDR)</strong> is
-          often the preferred way to restore the vehicle when the paint is still
-          intact—without sanding, filler, or a full repaint.
+          <strong className="text-white"> Auto hail damage repair</strong> with{" "}
+          <strong className="text-white">paintless dent repair Houston</strong>{" "}
+          specialists is often the preferred path when paint is intact—no sanding,
+          filler, or full repaint.
         </p>
         <p>
-          {BUSINESS_NAME} is a <strong className="text-white">fully mobile</strong>{" "}
-          hail repair service. You send photos, receive an estimate, accept the
+          {BUSINESS_NAME} offers fully mobile{" "}
+          <strong className="text-white">paintless dent removal Houston</strong>{" "}
+          and <strong className="text-white">dent repair Houston</strong> for hail.
+          Many jobs follow an{" "}
+          <strong className="text-white">insurance approved</strong> workflow:
+          photo estimates, clear documentation, and coordination support while you
+          work with your carrier. You send photos, receive an estimate, accept the
           quote, and we come to your home or workplace across Houston, Katy,
           Cypress, The Woodlands, Baytown, and nearby cities.
         </p>
