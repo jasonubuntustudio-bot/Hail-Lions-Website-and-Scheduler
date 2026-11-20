@@ -3,9 +3,9 @@ import { MapPin, Camera } from "lucide-react";
 import ServiceAreaMap from "@/components/ServiceAreaMap";
 
 export const metadata = {
-  title: "Service Areas — Greater Houston",
+  title: "Paintless Dent Repair Houston Areas | Mobile Auto Dent Repair",
   description:
-    "Hail Lions mobile paintless dent repair serves Houston, Baytown, Katy, Cypress, The Woodlands, Spring, Conroe, and surrounding cities.",
+    "Paintless dent repair Houston and nearby cities: Baytown, Katy, Cypress, The Woodlands, Spring, Conroe. Auto hail damage repair — mobile, insurance approved support.",
   alternates: { canonical: "/areas" },
 };
 
@@ -42,11 +42,12 @@ export default function AreasPage() {
     <div className="max-w-6xl mx-auto px-4 py-10 sm:py-16">
       <div className="text-center mb-8 sm:mb-12">
         <h1 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-          Service Areas
+          Paintless Dent Repair Houston & Surrounding Areas
         </h1>
         <p className="text-gray-400 max-w-2xl mx-auto">
-          Fully mobile paintless dent repair across greater Houston. We come to
-          your home, office, or dealership.
+          Mobile paintless dent removal and auto dent repair across greater
+          Houston. Auto hail damage repair at your home, office, or workplace —
+          with insurance approved estimate support when you file a claim.
         </p>
       </div>
 
