@@ -1,9 +1,9 @@
 /**
- * Customer + admin alerts: SMS (Vonage) + email (Resend).
+ * Customer + admin alerts: SMS (Twilio) + email (Resend).
  * Without provider env vars, messages are logged only.
  *
- * SMS env (Vonage):
- *   VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_FROM_NUMBER
+ * SMS env (Twilio):
+ *   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER
  *
  * Email env (optional):
  *   RESEND_API_KEY, EMAIL_FROM (e.g. "Hail Lions <quotes@yourdomain.com>")
@@ -42,7 +42,7 @@ function siteUrl() {
   ).replace(/\/$/, "");
 }
 
-/** Normalize US phones to E.164 (+1…) for Vonage */
+/** Normalize US phones to E.164 (+1…) for Twilio */
 export function toE164(phone: string | null | undefined): string | null {
   if (!phone) return null;
   const digits = phone.replace(/\D/g, "");
@@ -52,18 +52,13 @@ export function toE164(phone: string | null | undefined): string | null {
   return null;
 }
 
-/** Digits-only form some Vonage routes prefer (country code included, no +) */
-function toVonageDigits(e164: string): string {
-  return e164.replace(/\D/g, "");
-}
-
 async function sendSms(to: string, body: string): Promise<boolean> {
-  const apiKey = process.env.VONAGE_API_KEY;
-  const apiSecret = process.env.VONAGE_API_SECRET;
-  const from = process.env.VONAGE_FROM_NUMBER;
-  if (!apiKey || !apiSecret || !from) {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!sid || !token || !from) {
     console.info("[notify:sms:skip]", {
-      reason: "Vonage not configured (need VONAGE_API_KEY, VONAGE_API_SECRET, VONAGE_FROM_NUMBER)",
+      reason: "Twilio not configured (need TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER)",
       to,
     });
     return false;
@@ -74,33 +69,28 @@ async function sendSms(to: string, body: string): Promise<boolean> {
     return false;
   }
   try {
-    const auth = Buffer.from(`${apiKey}:${apiSecret}`).toString("base64");
-    const res = await fetch("https://rest.nexmo.com/sms/json", {
-      method: "POST",
-      headers: {
-        Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: new URLSearchParams({
-        from: from.replace(/\D/g, "").length >= 10 ? toVonageDigits(toE164(from) || from) : from,
-        to: toVonageDigits(e164),
-        text: body.slice(0, 1500),
-        type: "text",
-      }),
-    });
-    const data = (await res.json().catch(() => null)) as {
-      messages?: Array<{ status?: string; "error-text"?: string; messageId?: string }>;
-    } | null;
-    const msg = data?.messages?.[0];
-    if (!res.ok || !msg || msg.status !== "0") {
-      console.error(
-        "[notify:sms] vonage error",
-        res.status,
-        msg?.["error-text"] || JSON.stringify(data)?.slice(0, 300)
-      );
+    const auth = Buffer.from(`${sid}:${token}`).toString("base64");
+    const res = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${auth}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          To: e164,
+          From: toE164(from) || from,
+          Body: body.slice(0, 1500),
+        }),
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      console.error("[notify:sms] twilio error", res.status, text.slice(0, 300));
       return false;
     }
-    console.info("[notify:sms] sent", e164, msg.messageId);
+    console.info("[notify:sms] sent", e164);
     return true;
   } catch (e) {
     console.error("[notify:sms] failed", e);
