@@ -83,7 +83,7 @@ export const ADMIN_SECTIONS: {
     id: "quoted",
     title: "Quoted",
     short: "Quoted",
-    description: "Quote sent — waiting on customer (under 30 days)",
+    description: "Quoted — waiting on customer accept (under 30 days)",
   },
   {
     id: "accepted",
