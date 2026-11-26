@@ -2,7 +2,7 @@
 
 Mobile paintless dent repair for greater Houston — marketing site + photo-first booking.
 
-**Phone:** (281) 352-5434  
+**Phone:** (281) 994-8889  
 **Stack:** Next.js 15 · Tailwind CSS · TypeScript · Supabase (optional)
 
 ## Run locally
