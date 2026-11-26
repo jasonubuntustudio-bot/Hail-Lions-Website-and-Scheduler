@@ -5,7 +5,7 @@ import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
 export const metadata = {
   title: "Mobile Dent Repair Houston TX | We Come to You | Hail Lions",
   description:
-    "Mobile paintless dent repair in Houston. We come to your home, office, or driveway for hail damage and door dings. No shop drop-off. (281) 352-5434.",
+    "Mobile paintless dent repair in Houston. We come to your home, office, or driveway for hail damage and door dings. No shop drop-off. (281) 994-8889.",
   alternates: { canonical: "/services/mobile-dent-repair" },
 };
 
