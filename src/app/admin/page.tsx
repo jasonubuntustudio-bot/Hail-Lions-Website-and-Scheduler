@@ -501,7 +501,7 @@ export default function AdminPage() {
               href="/admin/customers"
               className="rounded-lg border border-cyan-500/40 px-3 py-1.5 text-xs font-medium text-cyan-300"
             >
-              Customers
+              CRM / Customers
             </Link>
             <button
               type="button"
@@ -519,6 +519,13 @@ export default function AdminPage() {
             </button>
           </div>
         </div>
+
+        <p className="mb-2 text-[11px] leading-relaxed text-gray-500">
+          Flow: <span className="text-gray-400">Pending</span> (photos) → enter
+          Low/High $ → <span className="text-emerald-400/90">Text customer</span>{" "}
+          → <span className="text-gray-400">Quoted</span> → they accept &amp;
+          schedule → you + Derrick get SMS. CRM keeps history under Customers.
+        </p>
 
         {/* Status tabs — scroll on mobile */}
         <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
