@@ -13,6 +13,7 @@ import {
   TIME_WINDOWS,
   type BoardSectionId,
 } from "@/lib/booking";
+import { PHONE } from "@/lib/utils";
 
 type Booking = {
   id: string;
@@ -97,6 +98,7 @@ export default function AdminPage() {
   const [photos, setPhotos] = useState<{ id: string; url: string }[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [quoteDollars, setQuoteDollars] = useState("");
+  const [quoteHighDollars, setQuoteHighDollars] = useState("");
   const [quoteNotes, setQuoteNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [slotDate, setSlotDate] = useState("");
@@ -262,14 +264,120 @@ export default function AdminPage() {
         ? (b.quote_amount_cents / 100).toFixed(2)
         : ""
     );
+    setQuoteHighDollars("");
     setQuoteNotes(b.quote_notes || "");
     loadPhotos(b.id);
   };
 
+  function parseDollar(raw: string): number | null {
+    const n = parseFloat(String(raw).replace(/[$,\s]/g, "").trim());
+    if (!Number.isFinite(n) || n <= 0) return null;
+    return n;
+  }
+
+  function formatRangeLabel(low: number, high: number | null): string {
+    const a = low.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+    if (high == null || high <= low) return `$${a}`;
+    const b = high.toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+    return `$${a} – $${b}`;
+  }
+
+  function toSmsE164(phone: string): string {
+    const digits = phone.replace(/\D/g, "");
+    if (digits.length === 10) return `+1${digits}`;
+    if (digits.length === 11 && digits.startsWith("1")) return `+${digits}`;
+    if (phone.trim().startsWith("+")) return `+${digits}`;
+    return phone.trim();
+  }
+
+  function buildCustomerSmsBody(b: Booking, low: number, high: number | null) {
+    const firstName =
+      (b.full_name || "there").trim().split(/\s+/)[0] || "there";
+    const site = (
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (typeof window !== "undefined" ? window.location.origin : "")
+    ).replace(/\/$/, "");
+    const code = b.confirmation_code || "";
+    const quoteUrl = `${site}/quote/${encodeURIComponent(code)}`;
+    const range = formatRangeLabel(low, high);
+    return [
+      `Hi ${firstName},`,
+      ``,
+      `Thank you for considering Hail Lions for your dent repair needs.`,
+      `We have inspected your photos of the damage.`,
+      ``,
+      `We have estimated the price of your repair to be ${range}.`,
+      ``,
+      `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
+      quoteUrl,
+      ``,
+      `Questions? Call ${PHONE}.`,
+      ``,
+      `— Hail Lions`,
+    ].join("\n");
+  }
+
+  /** Opens the phone SMS app with message pre-filled — you only tap Send */
+  const textCustomer = async (b: Booking) => {
+    const low = parseDollar(quoteDollars);
+    const high = parseDollar(quoteHighDollars);
+    if (low == null) {
+      setError("Enter a low estimate amount greater than $0");
+      return;
+    }
+    if (high != null && high < low) {
+      setError("High estimate must be greater than or equal to low estimate");
+      return;
+    }
+    setError("");
+    setSaving(true);
+    try {
+      // Save quote in system (status → quoted) so the approval link works
+      const res = await fetch("/api/admin/bookings", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-password": password,
+        },
+        body: JSON.stringify({
+          id: b.id,
+          sendQuote: true,
+          quoteAmountDollars: high != null ? high : low,
+          quoteNotes:
+            high != null
+              ? `Estimate range ${formatRangeLabel(low, high)}${quoteNotes ? ` · ${quoteNotes}` : ""}`
+              : quoteNotes,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || "Could not save quote before texting");
+        return;
+      }
+      const body = buildCustomerSmsBody(b, low, high);
+      const e164 = toSmsE164(b.phone);
+      // sms: works on iOS & Android; body is pre-filled — user taps Send
+      const href = `sms:${e164}?body=${encodeURIComponent(body)}`;
+      window.location.href = href;
+      setMessage(
+        `Quote saved. SMS draft opened for ${b.phone} — review and tap Send.`
+      );
+      await load(password);
+      setSection("quoted");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const sendQuote = async (id: string) => {
-    const raw = String(quoteDollars).replace(/[$,\s]/g, "").trim();
-    const dollars = parseFloat(raw);
-    if (!Number.isFinite(dollars) || dollars <= 0) {
+    const dollars = parseDollar(quoteDollars);
+    if (dollars == null) {
       setError("Enter a valid quote amount greater than $0");
       return;
     }
@@ -763,46 +871,79 @@ export default function AdminPage() {
                   </div>
 
                   {["quote_requested", "new", "quoted"].includes(b.status) && (
-                    <div className="space-y-2 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
+                    <div className="space-y-3 rounded-xl border border-cyan-500/30 bg-cyan-500/10 p-3">
                       <p className="text-sm font-medium text-cyan-200">
-                        {b.status === "quoted" ? "Update / resend quote" : "Send quote"}
+                        Estimate for customer
                       </p>
-                      <div className="flex flex-wrap gap-2">
-                        <div className="relative">
-                          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-                            $
+                      <div className="flex flex-wrap items-end gap-3">
+                        <label className="block">
+                          <span className="mb-1 block text-[11px] uppercase tracking-wide text-gray-400">
+                            Low $
                           </span>
-                          <input
-                            type="text"
-                            inputMode="decimal"
-                            placeholder="450.00"
-                            value={quoteDollars}
-                            onChange={(e) => setQuoteDollars(e.target.value)}
-                            className="w-36 rounded-lg border border-gray-700 bg-gray-900 py-2 pl-7 pr-3 text-white"
-                          />
-                        </div>
+                          <div className="relative">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                              $
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="350"
+                              value={quoteDollars}
+                              onChange={(e) => setQuoteDollars(e.target.value)}
+                              className="w-28 rounded-lg border border-gray-700 bg-gray-900 py-2.5 pl-7 pr-3 text-white"
+                            />
+                          </div>
+                        </label>
+                        <span className="pb-3 text-gray-500">–</span>
+                        <label className="block">
+                          <span className="mb-1 block text-[11px] uppercase tracking-wide text-gray-400">
+                            High $
+                          </span>
+                          <div className="relative">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                              $
+                            </span>
+                            <input
+                              type="text"
+                              inputMode="decimal"
+                              placeholder="550"
+                              value={quoteHighDollars}
+                              onChange={(e) =>
+                                setQuoteHighDollars(e.target.value)
+                              }
+                              className="w-28 rounded-lg border border-gray-700 bg-gray-900 py-2.5 pl-7 pr-3 text-white"
+                            />
+                          </div>
+                        </label>
                         <input
-                          placeholder="Notes to customer (optional)"
+                          placeholder="Notes (optional)"
                           value={quoteNotes}
                           onChange={(e) => setQuoteNotes(e.target.value)}
-                          className="min-w-[12rem] flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2 text-white"
+                          className="min-w-[10rem] flex-1 rounded-lg border border-gray-700 bg-gray-900 px-3 py-2.5 text-white"
                         />
                       </div>
-                      <button
-                        type="button"
-                        disabled={saving}
-                        onClick={() => sendQuote(b.id)}
-                        className="rounded-lg bg-cyan-500 px-4 py-2.5 text-sm font-bold text-black disabled:opacity-40"
-                      >
-                        {saving
-                          ? "Saving…"
-                          : b.status === "quoted"
-                            ? "Update quote & notify"
-                            : "Send quote & notify"}
-                      </button>
-                      <p className="text-[11px] text-gray-500">
-                        Saves the amount, sets status to Quoted, and texts/emails the
-                        customer when Twilio/Resend are configured.
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() => textCustomer(b)}
+                          className="rounded-lg bg-emerald-500 px-4 py-3 text-sm font-bold text-black disabled:opacity-40"
+                        >
+                          {saving ? "Preparing…" : "Text customer (opens SMS)"}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={saving}
+                          onClick={() => sendQuote(b.id)}
+                          className="rounded-lg border border-cyan-500/50 bg-cyan-500/20 px-4 py-3 text-sm font-semibold text-cyan-100 disabled:opacity-40"
+                        >
+                          Save quote only
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-gray-400">
+                        Enter low &amp; high, then <strong className="text-gray-300">Text customer</strong>.
+                        Your SMS app opens with the message filled in — check it and tap Send.
+                        Saves the job as Quoted and includes the approval / schedule link.
                       </p>
                     </div>
                   )}
