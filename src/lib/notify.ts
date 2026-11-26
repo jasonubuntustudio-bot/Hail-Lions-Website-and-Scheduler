@@ -239,13 +239,20 @@ export async function notifyAdmin(p: {
 
   // Ready-to-forward customer text: fill $AMOUNT only, then send to their number
   const customerTemplate = [
-    `Hi ${firstName}, this is Hail Lions.`,
-    `Your paintless dent repair estimate is $AMOUNT.`,
+    `Hi ${firstName},`,
     ``,
-    `ACCEPT / pick a time:`,
+    `Thank you for considering Hail Lions for your dent repair needs.`,
+    `We have inspected your photos of the damage.`,
+    ``,
+    `Your estimate is $AMOUNT.`,
+    ``,
+    `To ACCEPT and pick a time, open this link:`,
     `${quoteUrl}`,
     ``,
-    `Or reply DECLINE if you pass. Questions? Call ${PHONE}.`,
+    `To decline, reply DECLINE or ignore this message.`,
+    `Questions? Call ${PHONE}.`,
+    ``,
+    `— Hail Lions`,
   ].join("\n");
 
   const sms = [
