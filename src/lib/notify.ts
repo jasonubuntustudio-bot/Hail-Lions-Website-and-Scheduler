@@ -263,7 +263,7 @@ export async function notifyAdmin(p: {
     `Photos: ${p.photoCount ?? 0} · Code ${p.confirmationCode}`,
     `Admin photos: ${adminUrl}`,
     ``,
-    `--- COPY BELOW, replace $AMOUNT, send ---`,
+    `--- COPY BELOW, fill $___ – $___, send ---`,
     customerTemplate,
   ]
     .filter((line) => line !== null)
@@ -281,7 +281,7 @@ Code: ${p.confirmationCode}
 
 Admin (photos): ${adminUrl}
 
-——— Copy & text the customer (replace $AMOUNT) ———
+——— Copy & text the customer (fill $___ – $___) ———
 ${customerTemplate}
 `;
 
