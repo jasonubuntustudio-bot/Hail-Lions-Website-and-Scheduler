@@ -237,19 +237,18 @@ export async function notifyAdmin(p: {
   const quoteUrl = `${siteUrl()}/quote/${encodeURIComponent(p.confirmationCode)}`;
   const firstName = (p.fullName || "there").trim().split(/\s+/)[0] || "there";
 
-  // Ready-to-forward customer text: fill $AMOUNT only, then send to their number
+  // Ready-to-forward customer text: fill $___ – $___, then send to their number
   const customerTemplate = [
     `Hi ${firstName},`,
     ``,
     `Thank you for considering Hail Lions for your dent repair needs.`,
     `We have inspected your photos of the damage.`,
     ``,
-    `Your estimate is $AMOUNT.`,
+    `We have estimated the price of your repair to be $___ – $___.`,
     ``,
-    `To ACCEPT and pick a time, open this link:`,
+    `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
     `${quoteUrl}`,
     ``,
-    `To decline, reply DECLINE or ignore this message.`,
     `Questions? Call ${PHONE}.`,
     ``,
     `— Hail Lions`,
