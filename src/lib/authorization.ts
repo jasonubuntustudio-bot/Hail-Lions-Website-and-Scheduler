@@ -65,7 +65,7 @@ export function buildAuthorizationHtml(
 </head>
 <body>
   <h1>HAIL LIONS LLC — Repair Authorization &amp; Work Order</h1>
-  <p class="meta">Mobile Paintless Dent Repair · Greater Houston, TX · (281) 352-5434 · Confirmation <strong>${escapeHtml(data.confirmationCode)}</strong></p>
+  <p class="meta">Mobile Paintless Dent Repair · Greater Houston, TX · (281) 994-8889 · Confirmation <strong>${escapeHtml(data.confirmationCode)}</strong></p>
   <p class="small">Electronically signed under the Texas Uniform Electronic Transactions Act. Keep a copy for your records. This document is not a substitute for advice from a licensed Texas attorney.</p>
 
   <h2>1. Customer &amp; vehicle</h2>
