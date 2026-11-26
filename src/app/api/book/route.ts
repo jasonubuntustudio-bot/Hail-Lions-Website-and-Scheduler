@@ -247,14 +247,33 @@ export async function POST(req: NextRequest) {
       console.error("[book] crm upsert", e);
     }
 
+    const vehicleLabel = [
+      data.vehicle?.year,
+      data.vehicle?.make,
+      data.vehicle?.model,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim();
+    const addressLabel = [
+      data.location?.address,
+      data.location?.city,
+      data.location?.zip,
+    ]
+      .filter(Boolean)
+      .join(", ");
+
     await notifyAdmin({
       event: "quote_requested",
       confirmationCode: code,
       fullName: data.fullName.trim(),
       phone: data.phone.trim(),
       photoCount: photosSaved,
+      vehicle: vehicleLabel || null,
+      address: addressLabel || null,
       message: `New quote request ${code} from ${data.fullName.trim()} (${photosSaved} photos saved).`,
     });
+    // Email receipt only by default; SMS to customer is off until CUSTOMER_SMS_ENABLED=true
     await notifyCustomer({
       toPhone: data.phone.trim(),
       toEmail: data.email.trim() || null,
