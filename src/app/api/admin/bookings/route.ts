@@ -196,10 +196,10 @@ export async function PATCH(req: NextRequest) {
         await supabase.from("customer_interactions").insert({
           customer_id: customerId,
           booking_id: id,
-          channel: "quote",
+          channel: "sms",
           direction: "outbound",
-          subject: "Quote sent",
-          body: `Quoted ${formatMoney(cents)}. ${body.quoteNotes || ""}`.trim(),
+          subject: "Quote prepared for customer",
+          body: `Estimate ${formatMoney(cents)}. ${body.quoteNotes || ""} Admin texts customer from personal phone (approval link on quote page).`.trim(),
           created_by: "admin",
         });
         await supabase
@@ -214,6 +214,8 @@ export async function PATCH(req: NextRequest) {
       console.error("[admin/bookings] CRM log failed", e);
     }
 
+    const customerSmsOn =
+      (process.env.CUSTOMER_SMS_ENABLED || "").toLowerCase() === "true";
     return NextResponse.json({
       ok: true,
       booking: after,
@@ -221,7 +223,9 @@ export async function PATCH(req: NextRequest) {
       notify,
       message: notify.skipped
         ? `Quote saved. ${notify.skipped}`
-        : "Quote saved and customer notified (SMS/email if configured).",
+        : customerSmsOn
+          ? "Quote saved. Customer SMS/email sent if configured."
+          : `Quote saved. Use Text customer to open SMS, or share: ${quoteUrl}`,
     });
   }
 
