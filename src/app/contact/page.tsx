@@ -15,7 +15,7 @@ import {
 export const metadata = {
   title: "Contact",
   description:
-    "Contact Hail Lions for mobile paintless dent repair in Houston. Call (281) 352-5434 or book online with photos.",
+    "Contact Hail Lions for mobile paintless dent repair in Houston. Call (281) 994-8889 or book online with photos.",
   alternates: { canonical: "/contact" },
 };
 
