@@ -17,7 +17,12 @@
  *   ADMIN_PHONE (required for lead alerts), ADMIN_EMAIL
  */
 
-import { BUSINESS_NAME, PHONE } from "@/lib/utils";
+import {
+  BUSINESS_NAME,
+  OWNER_2_PHONE_TEL,
+  PHONE,
+  PHONE_TEL,
+} from "@/lib/utils";
 
 export type NotifyEvent =
   | "quote_requested"
@@ -213,6 +218,20 @@ export async function notifyCustomer(p: NotifyPayload) {
   return { ok: true, ...results };
 }
 
+/** Jason + Derrick by default; override with ADMIN_PHONES=+1...,+1... */
+function adminPhones(): string[] {
+  const multi = process.env.ADMIN_PHONES || "";
+  if (multi.trim()) {
+    return multi
+      .split(/[,;]+/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+  const primary = process.env.ADMIN_PHONE || PHONE_TEL || PHONE;
+  const secondary = process.env.ADMIN_PHONE_2 || OWNER_2_PHONE_TEL;
+  return [primary, secondary].filter(Boolean) as string[];
+}
+
 export async function notifyAdmin(p: {
   event: string;
   confirmationCode: string;
@@ -222,6 +241,10 @@ export async function notifyAdmin(p: {
   message: string;
   vehicle?: string | null;
   address?: string | null;
+  scheduledDate?: string | null;
+  scheduledWindow?: string | null;
+  city?: string | null;
+  zip?: string | null;
 }) {
   console.info("[notify:admin]", p);
 
@@ -231,50 +254,81 @@ export async function notifyAdmin(p: {
     await postWebhook(hook, { ...p, channel: "admin" });
   }
 
-  const adminPhone = process.env.ADMIN_PHONE || PHONE;
+  const phones = adminPhones();
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminUrl = `${siteUrl()}/admin`;
   const quoteUrl = `${siteUrl()}/quote/${encodeURIComponent(p.confirmationCode)}`;
   const firstName = (p.fullName || "there").trim().split(/\s+/)[0] || "there";
+  const loc = [p.address, p.city, p.zip].filter(Boolean).join(", ") || p.address;
 
-  // Ready-to-forward customer text: fill $___ – $___, then send to their number
-  const customerTemplate = [
-    `Hi ${firstName},`,
-    ``,
-    `Thank you for considering Hail Lions for your dent repair needs.`,
-    `We have inspected your photos of the damage.`,
-    ``,
-    `We have estimated the price of your repair to be $___ – $___.`,
-    ``,
-    `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
-    `${quoteUrl}`,
-    ``,
-    `Questions? Call ${PHONE}.`,
-    ``,
-    `— Hail Lions`,
-  ].join("\n");
+  let sms: string;
+  let emailBody: string;
 
-  const sms = [
-    `NEW LEAD → text this customer`,
-    `To: ${p.phone}`,
-    `${p.fullName}${p.vehicle ? ` · ${p.vehicle}` : ""}`,
-    p.address ? `Loc: ${p.address}` : null,
-    `Photos: ${p.photoCount ?? 0} · Code ${p.confirmationCode}`,
-    `Admin photos: ${adminUrl}`,
-    ``,
-    `--- COPY BELOW, fill $___ – $___, send ---`,
-    customerTemplate,
-  ]
-    .filter((line) => line !== null)
-    .join("\n");
+  if (p.event === "scheduled") {
+    // Confirmation to Jason + Derrick when customer books a slot
+    sms = [
+      `Hail Lions — APPOINTMENT BOOKED`,
+      `${p.fullName}`,
+      `Cust phone: ${p.phone}`,
+      `When: ${p.scheduledDate || "—"} · ${p.scheduledWindow || "—"}`,
+      loc ? `Where: ${loc}` : null,
+      p.vehicle ? `Vehicle: ${p.vehicle}` : null,
+      `Code: ${p.confirmationCode}`,
+      `Admin: ${adminUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n");
 
-  const subject = `${BUSINESS_NAME}: ${p.event} ${p.confirmationCode}`;
-  const emailBody = `${p.message}
+    emailBody = `Appointment confirmed
+
+Customer: ${p.fullName}
+Phone: ${p.phone}
+Date: ${p.scheduledDate || "—"}
+Window: ${p.scheduledWindow || "—"}
+Location: ${loc || "—"}
+Vehicle: ${p.vehicle || "—"}
+Code: ${p.confirmationCode}
+
+${adminUrl}
+`;
+  } else {
+    // New lead — copy-forward template for Jason (and Derrick)
+    const customerTemplate = [
+      `Hi ${firstName},`,
+      ``,
+      `Thank you for considering Hail Lions for your dent repair needs.`,
+      `We have inspected your photos of the damage.`,
+      ``,
+      `We have estimated the price of your repair to be $___ – $___.`,
+      ``,
+      `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
+      `${quoteUrl}`,
+      ``,
+      `Questions? Call ${PHONE}.`,
+      ``,
+      `— Hail Lions`,
+    ].join("\n");
+
+    sms = [
+      `NEW LEAD → text this customer`,
+      `To: ${p.phone}`,
+      `${p.fullName}${p.vehicle ? ` · ${p.vehicle}` : ""}`,
+      loc ? `Loc: ${loc}` : null,
+      `Photos: ${p.photoCount ?? 0} · Code ${p.confirmationCode}`,
+      `Admin photos: ${adminUrl}`,
+      ``,
+      `--- COPY BELOW, fill $___ – $___, send ---`,
+      customerTemplate,
+    ]
+      .filter((line) => line !== null)
+      .join("\n");
+
+    emailBody = `${p.message}
 
 Customer: ${p.fullName}
 Phone: ${p.phone}
 Vehicle: ${p.vehicle || "—"}
-Address: ${p.address || "—"}
+Address: ${loc || "—"}
 Photos: ${p.photoCount ?? "—"}
 Code: ${p.confirmationCode}
 
@@ -283,8 +337,13 @@ Admin (photos): ${adminUrl}
 ——— Copy & text the customer (fill $___ – $___) ———
 ${customerTemplate}
 `;
+  }
 
-  if (adminPhone) await sendSms(adminPhone, sms.slice(0, 1500));
+  const subject = `${BUSINESS_NAME}: ${p.event} ${p.confirmationCode}`;
+
+  for (const phone of phones) {
+    await sendSms(phone, sms.slice(0, 1500));
+  }
   if (adminEmail) await sendEmail(adminEmail, subject, emailBody);
 
   return { ok: true };
