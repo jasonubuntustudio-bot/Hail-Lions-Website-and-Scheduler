@@ -5,7 +5,7 @@ import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
 export const metadata = {
   title: "Auto Hail Damage Repair Houston | Paintless Dent Repair | Hail Lions",
   description:
-    "Auto hail damage repair Houston with mobile paintless dent repair and paintless dent removal. Insurance approved process support. Dent repair Houston. (281) 352-5434.",
+    "Auto hail damage repair Houston with mobile paintless dent repair and paintless dent removal. Insurance approved process support. Dent repair Houston. (281) 994-8889.",
   alternates: { canonical: "/services/hail-damage-repair" },
 };
 
