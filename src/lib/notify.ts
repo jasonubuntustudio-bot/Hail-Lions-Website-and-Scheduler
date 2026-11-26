@@ -2,15 +2,19 @@
  * Customer + admin alerts: SMS (Twilio) + email (Resend).
  * Without provider env vars, messages are logged only.
  *
+ * Recommended low-cost mode (no customer 10DLC):
+ *   ADMIN_PHONE = your cell — you get new leads + photo counts
+ *   CUSTOMER_SMS_ENABLED = false — you text the customer yourself
+ *
  * SMS env (Twilio):
  *   TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER
+ *   CUSTOMER_SMS_ENABLED = "true" only after 10DLC is approved
  *
  * Email env (optional):
- *   RESEND_API_KEY, EMAIL_FROM (e.g. "Hail Lions <quotes@yourdomain.com>")
+ *   RESEND_API_KEY, EMAIL_FROM
  *
- * Admin env (optional):
- *   ADMIN_PHONE, ADMIN_EMAIL
- *   ADMIN_NOTIFY_WEBHOOK_URL or NOTIFY_WEBHOOK_URL
+ * Admin env:
+ *   ADMIN_PHONE (required for lead alerts), ADMIN_EMAIL
  */
 
 import { BUSINESS_NAME, PHONE } from "@/lib/utils";
@@ -191,8 +195,16 @@ export async function notifyCustomer(p: NotifyPayload) {
     link,
   };
 
-  if (p.toPhone) {
+  // Customer SMS only when explicitly enabled (needs 10DLC for real customers).
+  const customerSmsOn =
+    (process.env.CUSTOMER_SMS_ENABLED || "").toLowerCase() === "true";
+  if (p.toPhone && customerSmsOn) {
     results.sms = await sendSms(p.toPhone, sms);
+  } else if (p.toPhone && !customerSmsOn) {
+    console.info("[notify:sms:skip]", {
+      reason: "CUSTOMER_SMS_ENABLED is not true — admin texts customers manually",
+      to: p.toPhone,
+    });
   }
   if (p.toEmail) {
     results.email = await sendEmail(p.toEmail, emailSubject, emailBody);
@@ -208,6 +220,8 @@ export async function notifyAdmin(p: {
   phone: string;
   photoCount?: number;
   message: string;
+  vehicle?: string | null;
+  address?: string | null;
 }) {
   console.info("[notify:admin]", p);
 
@@ -219,18 +233,39 @@ export async function notifyAdmin(p: {
 
   const adminPhone = process.env.ADMIN_PHONE || PHONE;
   const adminEmail = process.env.ADMIN_EMAIL;
+  const adminUrl = `${siteUrl()}/admin`;
+  const quoteUrl = `${siteUrl()}/quote/${encodeURIComponent(p.confirmationCode)}`;
 
-  const sms = `${BUSINESS_NAME} admin: ${p.message} Code ${p.confirmationCode}. Customer ${p.fullName} ${p.phone}`;
+  // Short, copy-friendly alert so you can open photos in admin then text the customer yourself
+  const sms = [
+    `Hail Lions NEW LEAD`,
+    `${p.fullName}`,
+    `Cust: ${p.phone}`,
+    p.vehicle ? `Veh: ${p.vehicle}` : null,
+    p.address ? `Loc: ${p.address}` : null,
+    `Photos: ${p.photoCount ?? 0}`,
+    `Code: ${p.confirmationCode}`,
+    `Admin: ${adminUrl}`,
+    `Quote link for customer: ${quoteUrl}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+
   const subject = `${BUSINESS_NAME}: ${p.event} ${p.confirmationCode}`;
   const emailBody = `${p.message}
 
 Code: ${p.confirmationCode}
 Customer: ${p.fullName}
 Phone: ${p.phone}
+Vehicle: ${p.vehicle || "—"}
+Address: ${p.address || "—"}
 Photos: ${p.photoCount ?? "—"}
-Event: ${p.event}
 
-Open admin: ${siteUrl()}/admin
+Open photos / send quote in admin:
+${adminUrl}
+
+Customer quote page (you can text this link):
+${quoteUrl}
 `;
 
   if (adminPhone) await sendSms(adminPhone, sms.slice(0, 1500));
