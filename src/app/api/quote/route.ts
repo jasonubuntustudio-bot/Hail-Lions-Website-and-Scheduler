@@ -259,6 +259,11 @@ export async function POST(req: NextRequest) {
         fullName: sched.full_name,
         phone: sched.phone,
         photoCount: 0,
+        address: sched.address,
+        city: sched.city,
+        zip: sched.zip,
+        scheduledDate: date,
+        scheduledWindow: window,
         message: `${sched.full_name} scheduled ${date} ${window} (${sched.confirmation_code}).`,
       });
       const tpl = appointmentConfirmationTemplates({
