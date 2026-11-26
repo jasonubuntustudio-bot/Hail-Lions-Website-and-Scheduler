@@ -5,7 +5,7 @@ import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
 export const metadata = {
   title: "Classic Car Paintless Dent Repair Houston TX | Preserve Original Paint",
   description:
-    "Classic and vintage car PDR in Houston. Preserve original paint and collector value with careful paintless dent repair. Mobile service. (281) 352-5434.",
+    "Classic and vintage car PDR in Houston. Preserve original paint and collector value with careful paintless dent repair. Mobile service. (281) 994-8889.",
   alternates: { canonical: "/services/classic-car-pdr" },
 };
 
