@@ -35,7 +35,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Houston, TX",
     title: "Paintless Dent Repair Houston TX | Mobile Hail & Door Ding Fix",
     description:
-      "Paintless dent repair Houston specialists. Mobile paintless dent removal, auto dent repair, and auto hail damage repair citywide. Insurance-friendly estimates. (281) 352-5434.",
+      "Paintless dent repair Houston specialists. Mobile paintless dent removal, auto dent repair, and auto hail damage repair citywide. Insurance-friendly estimates. (281) 994-8889.",
     h1: "Paintless Dent Repair Houston",
     tagline: "Citywide mobile PDR — from the Heights to the Energy Corridor",
     intro: [
@@ -89,7 +89,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Katy, TX",
     title: "Paintless Dent Repair Katy TX | Cinco Ranch Mobile PDR",
     description:
-      "Paintless dent repair Katy and Cinco Ranch. Mobile paintless dent removal, auto dent repair, west-side auto hail damage repair. (281) 352-5434.",
+      "Paintless dent repair Katy and Cinco Ranch. Mobile paintless dent removal, auto dent repair, west-side auto hail damage repair. (281) 994-8889.",
     h1: "Paintless Dent Repair Katy",
     tagline: "West-side mobile PDR for Katy, Cinco Ranch, and nearby",
     intro: [
@@ -140,7 +140,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Cypress, TX",
     title: "Paintless Dent Repair Cypress TX | Bridgeland & Cy-Fair PDR",
     description:
-      "Paintless dent repair Cypress TX. Mobile paintless dent removal in Bridgeland and Towne Lake. Auto hail damage repair northwest Houston. (281) 352-5434.",
+      "Paintless dent repair Cypress TX. Mobile paintless dent removal in Bridgeland and Towne Lake. Auto hail damage repair northwest Houston. (281) 994-8889.",
     h1: "Paintless Dent Repair Cypress",
     tagline: "Northwest Harris County mobile PDR — Bridgeland to Cy-Fair",
     intro: [
@@ -190,7 +190,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "The Woodlands, TX",
     title: "Paintless Dent Repair The Woodlands TX | Mobile Factory-Finish PDR",
     description:
-      "Paintless dent repair The Woodlands. Mobile paintless dent removal, auto dent repair, and auto hail damage repair in Montgomery County. (281) 352-5434.",
+      "Paintless dent repair The Woodlands. Mobile paintless dent removal, auto dent repair, and auto hail damage repair in Montgomery County. (281) 994-8889.",
     h1: "Paintless Dent Repair The Woodlands",
     tagline: "North-metro mobile PDR with factory-finish focus",
     intro: [
@@ -240,7 +240,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Baytown, TX",
     title: "Paintless Dent Repair Baytown TX | East Side Mobile PDR",
     description:
-      "Paintless dent repair Baytown. Mobile paintless dent removal and auto hail damage repair on the east side—no long drive west. (281) 352-5434.",
+      "Paintless dent repair Baytown. Mobile paintless dent removal and auto hail damage repair on the east side—no long drive west. (281) 994-8889.",
     h1: "Paintless Dent Repair Baytown",
     tagline: "East Harris County mobile PDR — we come to Baytown",
     intro: [
@@ -285,7 +285,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Spring, TX",
     title: "Paintless Dent Repair Spring TX | North Houston Mobile PDR",
     description:
-      "Paintless dent repair Spring TX. Mobile paintless dent removal near Old Town Spring and Springwoods. Auto hail damage repair. (281) 352-5434.",
+      "Paintless dent repair Spring TX. Mobile paintless dent removal near Old Town Spring and Springwoods. Auto hail damage repair. (281) 994-8889.",
     h1: "Paintless Dent Repair Spring",
     tagline: "North Houston mobile PDR for Spring and nearby Klein",
     intro: [
@@ -330,7 +330,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Sugar Land, TX",
     title: "Paintless Dent Repair Sugar Land TX | Fort Bend Mobile PDR",
     description:
-      "Paintless dent repair Sugar Land. Mobile paintless dent removal in First Colony and Telfair. Auto dent repair & hail. (281) 352-5434.",
+      "Paintless dent repair Sugar Land. Mobile paintless dent removal in First Colony and Telfair. Auto dent repair & hail. (281) 994-8889.",
     h1: "Paintless Dent Repair Sugar Land",
     tagline: "Fort Bend County mobile PDR — First Colony to Telfair",
     intro: [
@@ -375,7 +375,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Tomball, TX",
     title: "Paintless Dent Repair Tomball TX | Northwest Mobile PDR",
     description:
-      "Paintless dent repair Tomball. Mobile paintless dent removal and auto hail damage repair in northwest Harris County. (281) 352-5434.",
+      "Paintless dent repair Tomball. Mobile paintless dent removal and auto hail damage repair in northwest Harris County. (281) 994-8889.",
     h1: "Paintless Dent Repair Tomball",
     tagline: "Northwest Harris mobile PDR between Cypress and The Woodlands",
     intro: [
@@ -419,7 +419,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Conroe, TX",
     title: "Paintless Dent Repair Conroe TX | Montgomery County Mobile PDR",
     description:
-      "Paintless dent repair Conroe. Mobile paintless dent removal and auto hail damage repair in Montgomery County. (281) 352-5434.",
+      "Paintless dent repair Conroe. Mobile paintless dent removal and auto hail damage repair in Montgomery County. (281) 994-8889.",
     h1: "Paintless Dent Repair Conroe",
     tagline: "Montgomery County mobile PDR — Conroe and surrounding",
     intro: [
@@ -463,7 +463,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Kingwood, TX",
     title: "Paintless Dent Repair Kingwood TX | Northeast Mobile PDR",
     description:
-      "Paintless dent repair Kingwood. Mobile paintless dent removal and auto hail damage repair in northeast Houston. (281) 352-5434.",
+      "Paintless dent repair Kingwood. Mobile paintless dent removal and auto hail damage repair in northeast Houston. (281) 994-8889.",
     h1: "Paintless Dent Repair Kingwood",
     tagline: "Northeast Houston mobile PDR for Kingwood neighborhoods",
     intro: [
@@ -507,7 +507,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Pasadena, TX",
     title: "Paintless Dent Repair Pasadena TX | Southeast Mobile PDR",
     description:
-      "Paintless dent repair Pasadena. Mobile paintless dent removal and auto hail damage repair on Houston’s southeast side. (281) 352-5434.",
+      "Paintless dent repair Pasadena. Mobile paintless dent removal and auto hail damage repair on Houston’s southeast side. (281) 994-8889.",
     h1: "Paintless Dent Repair Pasadena",
     tagline: "Southeast mobile PDR for Pasadena drivers",
     intro: [
@@ -551,7 +551,7 @@ export const AREAS: AreaContent[] = [
     stateLabel: "Pearland, TX",
     title: "Paintless Dent Repair Pearland TX | South Metro Mobile PDR",
     description:
-      "Paintless dent repair Pearland. Mobile paintless dent removal and auto hail damage repair south of Houston. (281) 352-5434.",
+      "Paintless dent repair Pearland. Mobile paintless dent removal and auto hail damage repair south of Houston. (281) 994-8889.",
     h1: "Paintless Dent Repair Pearland",
     tagline: "South-metro mobile PDR for Pearland and nearby",
     intro: [
