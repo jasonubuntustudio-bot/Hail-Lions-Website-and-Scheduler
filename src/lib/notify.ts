@@ -235,37 +235,47 @@ export async function notifyAdmin(p: {
   const adminEmail = process.env.ADMIN_EMAIL;
   const adminUrl = `${siteUrl()}/admin`;
   const quoteUrl = `${siteUrl()}/quote/${encodeURIComponent(p.confirmationCode)}`;
+  const firstName = (p.fullName || "there").trim().split(/\s+/)[0] || "there";
 
-  // Short, copy-friendly alert so you can open photos in admin then text the customer yourself
+  // Ready-to-forward customer text: fill $AMOUNT only, then send to their number
+  const customerTemplate = [
+    `Hi ${firstName}, this is Hail Lions.`,
+    `Your paintless dent repair estimate is $AMOUNT.`,
+    ``,
+    `ACCEPT / pick a time:`,
+    `${quoteUrl}`,
+    ``,
+    `Or reply DECLINE if you pass. Questions? Call ${PHONE}.`,
+  ].join("\n");
+
   const sms = [
-    `Hail Lions NEW LEAD`,
-    `${p.fullName}`,
-    `Cust: ${p.phone}`,
-    p.vehicle ? `Veh: ${p.vehicle}` : null,
+    `NEW LEAD → text this customer`,
+    `To: ${p.phone}`,
+    `${p.fullName}${p.vehicle ? ` · ${p.vehicle}` : ""}`,
     p.address ? `Loc: ${p.address}` : null,
-    `Photos: ${p.photoCount ?? 0}`,
-    `Code: ${p.confirmationCode}`,
-    `Admin: ${adminUrl}`,
-    `Quote link for customer: ${quoteUrl}`,
+    `Photos: ${p.photoCount ?? 0} · Code ${p.confirmationCode}`,
+    `Admin photos: ${adminUrl}`,
+    ``,
+    `--- COPY BELOW, replace $AMOUNT, send ---`,
+    customerTemplate,
   ]
-    .filter(Boolean)
+    .filter((line) => line !== null)
     .join("\n");
 
   const subject = `${BUSINESS_NAME}: ${p.event} ${p.confirmationCode}`;
   const emailBody = `${p.message}
 
-Code: ${p.confirmationCode}
 Customer: ${p.fullName}
 Phone: ${p.phone}
 Vehicle: ${p.vehicle || "—"}
 Address: ${p.address || "—"}
 Photos: ${p.photoCount ?? "—"}
+Code: ${p.confirmationCode}
 
-Open photos / send quote in admin:
-${adminUrl}
+Admin (photos): ${adminUrl}
 
-Customer quote page (you can text this link):
-${quoteUrl}
+——— Copy & text the customer (replace $AMOUNT) ———
+${customerTemplate}
 `;
 
   if (adminPhone) await sendSms(adminPhone, sms.slice(0, 1500));
