@@ -32,8 +32,57 @@ function techLine(name?: string | null, phone?: string | null) {
 }
 
 /**
- * Customer estimate / quote message — matches Hail Lions
- * “Customer Estimate & Appointment Template.”
+ * Business-letter style estimate for SMS / copy-paste.
+ * SMS cannot use real bold fonts — structure + CAPS headers read clearly on phones.
+ */
+export function customerEstimateLetter(vars: {
+  customerName: string;
+  /** Display string already formatted, e.g. "$350 – $550" or "$450" or "$___ – $___" */
+  amountDisplay: string;
+  quoteUrl: string;
+  confirmationCode?: string | null;
+  vehicleSummary?: string | null;
+}): string {
+  const fullName = vars.customerName.trim() || "Valued Customer";
+  const name = firstName(fullName);
+  const vehicle = vars.vehicleSummary?.trim();
+  const code = vars.confirmationCode?.trim();
+
+  return [
+    `HAIL LIONS`,
+    `Mobile Paintless Dent Repair`,
+    ``,
+    `Dear ${name},`,
+    ``,
+    `Thank you for considering Hail Lions for your dent repair needs.`,
+    `We have inspected your photos of the damage.`,
+    ``,
+    `--------------------------------`,
+    `ESTIMATE`,
+    `${vars.amountDisplay}`,
+    vehicle ? `Vehicle: ${vehicle}` : null,
+    code ? `Reference: ${code}` : null,
+    `--------------------------------`,
+    ``,
+    `If you would like to move forward with this repair, please use the approval link below. You may pick a day, time, and location that is convenient for you.`,
+    ``,
+    `TO ACCEPT AND SCHEDULE:`,
+    `${vars.quoteUrl}`,
+    ``,
+    `If you have any questions, please call us at ${PHONE}.`,
+    ``,
+    `Sincerely,`,
+    ``,
+    `${OWNER_1_NAME}`,
+    `Hail Lions`,
+    `${PHONE}`,
+  ]
+    .filter((line) => line !== null)
+    .join("\n");
+}
+
+/**
+ * Customer estimate / quote message — business letter format.
  * Auto-fills name, amount (or optional low–high range), and ACCEPT URL.
  */
 export function quoteReminderTemplates(vars: {
@@ -48,16 +97,15 @@ export function quoteReminderTemplates(vars: {
   dayNumber: 1 | 2 | 3;
   vehicleSummary?: string | null;
 }) {
-  const fullName = vars.customerName.trim() || "there";
+  const fullName = vars.customerName.trim() || "Valued Customer";
   const name = firstName(vars.customerName);
   const low = formatMoney(vars.quoteAmountCents);
   const hasRange =
     vars.quoteHighCents != null &&
     vars.quoteHighCents > vars.quoteAmountCents;
   const high = hasRange ? formatMoney(vars.quoteHighCents!) : null;
-  const amountPhrase = hasRange
-    ? `between ${low} and ${high}`
-    : low;
+  const amountDisplay = hasRange ? `${low} – ${high}` : low;
+  const amountPhrase = hasRange ? `between ${low} and ${high}` : low;
   const service =
     serviceLabel(vars.serviceType || "") || "paintless dent repair";
   const vehicle = vars.vehicleSummary?.trim();
@@ -70,61 +118,70 @@ export function quoteReminderTemplates(vars: {
 
   const vehicleLine = vehicle ? `\nVehicle: ${vehicle}` : "";
 
-  // --- Day 1: primary estimate (template style) ---
-  const emailBodyDay1 = `Good day, ${fullName}!
+  // --- Business letter (email) ---
+  const emailBodyDay1 = `HAIL LIONS
+Mobile Paintless Dent Repair
 
-This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
+Dear ${fullName},
 
-First, I'd like to thank you for considering ${BUSINESS_NAME} for your vehicle repairs. We appreciate the opportunity to earn your business!
+Thank you for considering Hail Lions for your dent repair needs. We appreciate the opportunity to earn your business.
 
-Based on the information provided, your estimated repair cost is ${amountPhrase}.${vehicleLine}
+We have inspected your photos of the damage. Based on the information provided, your estimated repair cost is ${amountPhrase}.${vehicleLine}
 
 Service: ${service}
 Confirmation code: ${vars.confirmationCode}${notesBlock}
 
-If you'd like to move forward with your repairs, simply open the link below to ACCEPT your quote. From there, you can select the appointment date and time that are most convenient for you.
+If you would like to move forward with this repair, please use the approval link below. You may pick a day, time, and location that is convenient for you.
 
-ACCEPT & schedule:
+TO ACCEPT AND SCHEDULE:
 ${acceptUrl}
 
-We look forward to taking care of your vehicle!
+If you have any questions, please call us at ${PHONE}.
+
+Sincerely,
 
 ${OWNER_1_NAME}
-${BUSINESS_NAME}
+Hail Lions
 ${PHONE}`;
 
-  const emailBodyDay2 = `Good day, ${name}!
+  const emailBodyDay2 = `HAIL LIONS
+Mobile Paintless Dent Repair
 
-This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
+Dear ${name},
 
-Just a friendly reminder that your estimate of ${amountPhrase} is still available.
+This is a friendly reminder that your estimate of ${amountPhrase} is still available.
 
 Confirmation code: ${vars.confirmationCode}
 
-To ACCEPT your quote and choose an appointment time, please use this link:
+TO ACCEPT AND SCHEDULE:
 ${acceptUrl}
 
-We look forward to taking care of your vehicle!
+If you have any questions, please call us at ${PHONE}.
+
+Sincerely,
 
 ${OWNER_1_NAME}
-${BUSINESS_NAME}
+Hail Lions
 ${PHONE}`;
 
-  const emailBodyDay3 = `Good day, ${name}!
+  const emailBodyDay3 = `HAIL LIONS
+Mobile Paintless Dent Repair
 
-This is ${OWNER_1_NAME} with ${BUSINESS_NAME}.
+Dear ${name},
 
-This is a final reminder regarding your ${BUSINESS_NAME} estimate of ${amountPhrase}. After today, this quote may no longer be held without an update from our team.
+This is a final reminder regarding your Hail Lions estimate of ${amountPhrase}. After today, this quote may no longer be held without an update from our team.
 
 Confirmation code: ${vars.confirmationCode}
 
-If you'd like to move forward, please ACCEPT and schedule here:
+TO ACCEPT AND SCHEDULE:
 ${acceptUrl}
 
-Thank you again for considering ${BUSINESS_NAME}.
+Thank you again for considering Hail Lions.
+
+Sincerely,
 
 ${OWNER_1_NAME}
-${BUSINESS_NAME}
+Hail Lions
 ${PHONE}`;
 
   const emailBody = [emailBodyDay1, emailBodyDay2, emailBodyDay3][day - 1];
@@ -135,11 +192,43 @@ ${PHONE}`;
     `Final reminder: ${BUSINESS_NAME} estimate ${hasRange ? `${low}–${high}` : low}`,
   ][day - 1];
 
-  // SMS stays short; same facts as the template
+  // SMS: full business-letter layout (primary day); shorter reminders for day 2/3
+  const smsDay1 = customerEstimateLetter({
+    customerName: fullName,
+    amountDisplay,
+    quoteUrl: acceptUrl,
+    confirmationCode: vars.confirmationCode,
+    vehicleSummary: vehicle,
+  });
+
   const sms = [
-    `Good day, ${name}! Jason with ${BUSINESS_NAME}. Your estimated repair cost is ${amountPhrase}. ACCEPT & schedule: ${acceptUrl} — Code ${vars.confirmationCode}`,
-    `Hi ${name}, reminder from ${BUSINESS_NAME}: your estimate (${amountPhrase}) is still open. ACCEPT: ${acceptUrl} — ${vars.confirmationCode}`,
-    `Hi ${name}, final reminder: ${BUSINESS_NAME} estimate ${amountPhrase}. ACCEPT & schedule today: ${acceptUrl} — ${vars.confirmationCode}`,
+    smsDay1,
+    [
+      `HAIL LIONS`,
+      ``,
+      `Dear ${name},`,
+      ``,
+      `Reminder: your estimate (${amountDisplay}) is still open.`,
+      ``,
+      `TO ACCEPT AND SCHEDULE:`,
+      acceptUrl,
+      ``,
+      `Sincerely,`,
+      `Hail Lions · ${PHONE}`,
+    ].join("\n"),
+    [
+      `HAIL LIONS`,
+      ``,
+      `Dear ${name},`,
+      ``,
+      `Final reminder: your estimate of ${amountDisplay}.`,
+      ``,
+      `TO ACCEPT AND SCHEDULE:`,
+      acceptUrl,
+      ``,
+      `Sincerely,`,
+      `Hail Lions · ${PHONE}`,
+    ].join("\n"),
   ][day - 1];
 
   return { sms, emailSubject, emailBody };
