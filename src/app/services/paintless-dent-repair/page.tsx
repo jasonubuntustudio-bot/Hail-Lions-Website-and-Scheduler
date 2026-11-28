@@ -1,6 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, Phone, Check } from "lucide-react";
 import { PHONE, PHONE_TEL, BUSINESS_NAME } from "@/lib/utils";
+import { IMAGES } from "@/lib/images";
 
 export const metadata = {
   title: "Paintless Dent Repair Houston | Paintless Dent Removal | Auto Dent Repair",
@@ -12,6 +14,16 @@ export const metadata = {
 export default function PaintlessDentRepairPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-16">
+      <div className="relative mb-8 aspect-[16/9] overflow-hidden rounded-2xl border border-gray-800">
+        <Image
+          src={IMAGES.serviceHero.pdr}
+          alt="Paintless dent repair Houston — panel work"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 768px"
+          priority
+        />
+      </div>
       <p className="mb-2 text-sm font-medium uppercase tracking-wide text-cyan-500/80">
         Service
       </p>

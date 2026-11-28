@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Camera, Check } from "lucide-react";
+import { IMAGES } from "@/lib/images";
 
 export const metadata = {
   title: "Paintless Dent Repair Services Houston | Hail, Mobile & Classic PDR",
@@ -14,24 +16,28 @@ const SERVICES = [
     title: "Paintless Dent Repair",
     keyword: "PDR Houston",
     desc: "Door dings, creases, and soft dents removed without paint or fillers. Factory finish preserved with a lifetime warranty.",
+    img: IMAGES.serviceHero.pdr,
   },
   {
     href: "/services/hail-damage-repair",
     title: "Hail Damage Repair",
     keyword: "Hail repair Houston",
     desc: "Storm hail on hoods, roofs, and doors restored with precision PDR. Insurance-friendly estimates and mobile service.",
+    img: IMAGES.serviceHero.hail,
   },
   {
     href: "/services/mobile-dent-repair",
     title: "Mobile Dent Repair",
     keyword: "Mobile PDR",
     desc: "We come to your home, office, or workplace across greater Houston. No shop drop-off for most qualifying jobs.",
+    img: IMAGES.serviceHero.mobile,
   },
   {
     href: "/services/classic-car-pdr",
     title: "Classic Car PDR",
     keyword: "Classic car dent repair",
     desc: "Careful paintless repair for vintage and collector vehicles. Protect original paint and value.",
+    img: IMAGES.serviceHero.classic,
   },
 ];
 
@@ -56,16 +62,27 @@ export default function ServicesPage() {
           <Link
             key={s.href}
             href={s.href}
-            className="block rounded-2xl border border-gray-800 bg-gray-900 p-6 transition hover:border-cyan-500/50"
+            className="group overflow-hidden rounded-2xl border border-gray-800 bg-gray-900 transition hover:border-cyan-500/50"
           >
-            <p className="mb-1 text-xs font-medium uppercase tracking-wide text-cyan-500/80">
-              {s.keyword}
-            </p>
-            <h2 className="mb-2 text-xl font-semibold text-white">{s.title}</h2>
-            <p className="text-sm text-gray-400">{s.desc}</p>
-            <span className="mt-4 inline-block text-sm font-medium text-cyan-400">
-              Learn more →
-            </span>
+            <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-950">
+              <Image
+                src={s.img}
+                alt={s.title}
+                fill
+                className="object-cover transition duration-500 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
+            <div className="p-6">
+              <p className="mb-1 text-xs font-medium uppercase tracking-wide text-cyan-500/80">
+                {s.keyword}
+              </p>
+              <h2 className="mb-2 text-xl font-semibold text-white">{s.title}</h2>
+              <p className="text-sm text-gray-400">{s.desc}</p>
+              <span className="mt-4 inline-block text-sm font-medium text-cyan-400">
+                Learn more →
+              </span>
+            </div>
           </Link>
         ))}
       </div>

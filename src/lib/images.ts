@@ -1,6 +1,6 @@
 /**
  * Local optimized WebP assets (high visual quality, small files).
- * Source: haillions_media → public/images via LANCZOS + WebP q≈85.
+ * Source: haillions.com media → public/images via ImageMagick WebP.
  */
 export const IMAGES = {
   /** Hero full-bleed */
@@ -10,23 +10,23 @@ export const IMAGES = {
   gallery: [
     {
       src: "/images/gallery-1.webp",
-      alt: "Paintless dent repair on a vehicle panel",
-      label: "Factory finish restored",
+      alt: "Hail damage on vehicle panel before paintless repair",
+      label: "Hail damage",
     },
     {
       src: "/images/gallery-2.webp",
-      alt: "Hail damage before repair",
-      label: "Hail damage — before",
+      alt: "Door dent removal paintless process",
+      label: "Door dents",
     },
     {
       src: "/images/gallery-3.webp",
-      alt: "Hail damage after paintless repair",
-      label: "Hail damage — after",
+      alt: "Paintless dent removal detail work",
+      label: "Precision PDR",
     },
     {
       src: "/images/gallery-4.webp",
-      alt: "Door ding before and after",
-      label: "Door dings & creases",
+      alt: "Paintless dent removal on body panel",
+      label: "Factory finish",
     },
   ],
   services: [
@@ -49,4 +49,20 @@ export const IMAGES = {
       img: "/images/service-mobile.webp",
     },
   ],
+  /** Detail page heroes */
+  serviceHero: {
+    pdr: "/images/service-pdr.webp",
+    hail: "/images/service-hail.webp",
+    mobile: "/images/service-mobile.webp",
+    classic: "/images/service-classic.webp",
+  },
+  extra: {
+    houston: "/images/gallery-houston.webp",
+    hailService: "/images/gallery-hail-svc.webp",
+    door: "/images/gallery-door.webp",
+    dent: "/images/gallery-dent.webp",
+    road: "/images/area-road.webp",
+    storm: "/images/area-storm.webp",
+    car: "/images/area-car.webp",
+  },
 } as const;
