@@ -14,6 +14,7 @@ import {
   type BoardSectionId,
 } from "@/lib/booking";
 import { PHONE } from "@/lib/utils";
+import { customerEstimateLetter } from "@/lib/templates";
 
 type Booking = {
   id: string;
@@ -297,8 +298,6 @@ export default function AdminPage() {
   }
 
   function buildCustomerSmsBody(b: Booking, low: number, high: number | null) {
-    const firstName =
-      (b.full_name || "there").trim().split(/\s+/)[0] || "there";
     const site = (
       process.env.NEXT_PUBLIC_SITE_URL ||
       (typeof window !== "undefined" ? window.location.origin : "")
@@ -306,21 +305,16 @@ export default function AdminPage() {
     const code = b.confirmation_code || "";
     const quoteUrl = `${site}/quote/${encodeURIComponent(code)}`;
     const range = formatRangeLabel(low, high);
-    return [
-      `Hi ${firstName},`,
-      ``,
-      `Thank you for considering Hail Lions for your dent repair needs.`,
-      `We have inspected your photos of the damage.`,
-      ``,
-      `We have estimated the price of your repair to be ${range}.`,
-      ``,
-      `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
+    const vehicle = [b.vehicle_year, b.vehicle_make, b.vehicle_model]
+      .filter(Boolean)
+      .join(" ");
+    return customerEstimateLetter({
+      customerName: b.full_name || "Valued Customer",
+      amountDisplay: range,
       quoteUrl,
-      ``,
-      `Questions? Call ${PHONE}.`,
-      ``,
-      `— Hail Lions`,
-    ].join("\n");
+      confirmationCode: code,
+      vehicleSummary: vehicle || null,
+    });
   }
 
   /** Opens the phone SMS app with message pre-filled — you only tap Send */
