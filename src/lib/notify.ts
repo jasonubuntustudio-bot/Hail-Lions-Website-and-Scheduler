@@ -23,6 +23,7 @@ import {
   PHONE,
   PHONE_TEL,
 } from "@/lib/utils";
+import { customerEstimateLetter } from "@/lib/templates";
 
 export type NotifyEvent =
   | "quote_requested"
@@ -292,22 +293,14 @@ Code: ${p.confirmationCode}
 ${adminUrl}
 `;
   } else {
-    // New lead — copy-forward template for Jason (and Derrick)
-    const customerTemplate = [
-      `Hi ${firstName},`,
-      ``,
-      `Thank you for considering Hail Lions for your dent repair needs.`,
-      `We have inspected your photos of the damage.`,
-      ``,
-      `We have estimated the price of your repair to be $___ – $___.`,
-      ``,
-      `If you would like to move forward with this repair, please use the approval link below. You can pick a day, time, and location that is convenient for you:`,
-      `${quoteUrl}`,
-      ``,
-      `Questions? Call ${PHONE}.`,
-      ``,
-      `— Hail Lions`,
-    ].join("\n");
+    // New lead — business-letter template for Jason to forward
+    const customerTemplate = customerEstimateLetter({
+      customerName: p.fullName || "Valued Customer",
+      amountDisplay: "$___ – $___",
+      quoteUrl,
+      confirmationCode: p.confirmationCode,
+      vehicleSummary: p.vehicle,
+    });
 
     sms = [
       `NEW LEAD → text this customer`,
